@@ -18,6 +18,16 @@ type Env = {
   BRIEF_FROM_EMAIL?: string
 }
 
+/**
+ * Cloudflare passes a context object to every function. Typed locally rather
+ * than via the global `PagesFunction` type so this file needs no extra type
+ * packages and never trips Next.js' type-checker.
+ */
+type Ctx = {
+  request: Request
+  env: Env
+}
+
 type Brief = {
   name?: string
   company?: string
@@ -114,7 +124,7 @@ function buildText(b: Brief) {
   ].join('\n')
 }
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost = async ({ request, env }: Ctx): Promise<Response> => {
   let body: Brief
   try {
     body = await request.json()
@@ -169,5 +179,5 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 }
 
 /** Anything other than POST gets a clear answer rather than a 404. */
-export const onRequestGet: PagesFunction<Env> = async () =>
+export const onRequestGet = async (): Promise<Response> =>
   json({ ok: false, error: 'Send a POST request with the brief payload.' }, 405)
