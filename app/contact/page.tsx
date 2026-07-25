@@ -4,14 +4,15 @@ import ProjectBrief from '@/components/contact/ProjectBrief'
 import Reveal, { RevealWords } from '@/components/ui/Reveal'
 import GlassIcon from '@/components/ui/GlassIcon'
 import { site } from '@/lib/site'
+import { pageMeta } from '@/lib/seo'
 import { process } from '@/lib/data'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Start Your Project',
   description:
     'Tell GrowFrame about your project. Complete the brief and we’ll come back within 24–48 hours with a plan, a timeline and a flat monthly number.',
-  alternates: { canonical: '/contact' },
-}
+  path: '/contact',
+})
 
 const channels = [
   { label: 'Email', value: site.email, href: `mailto:${site.email}` },

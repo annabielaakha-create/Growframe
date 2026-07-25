@@ -27,24 +27,34 @@ Deploy: push to GitHub → import on [Vercel](https://vercel.com/new). Zero conf
 ```
 app/
   layout.tsx        Fonts, SEO metadata, JSON-LD, nav + footer shell
-  page.tsx          Homepage (10 sections)
+  page.tsx          Homepage
   work/page.tsx     Filterable archive
+  about/page.tsx    Studio + founder, AboutPage JSON-LD
   contact/page.tsx  Brief form + channels
+  not-found.tsx     404
   sitemap.ts        Auto sitemap
   robots.ts         Auto robots.txt
 components/
   Nav.tsx           Floating glass nav, scroll-reactive
+  Footer.tsx        Sitemap columns + contact
   SmoothScroll.tsx  Lenis ↔ GSAP ScrollTrigger bridge
-  sections/         Hero, Manifesto, Services, WorkRail, CaseStudies,
-                    Process, Testimonials, Pricing, Faq, ClosingCta
+  sections/         Hero, Manifesto, Services, WorkCta, Process,
+                    Testimonials, Pricing, Faq, ClosingCta
   ui/               Glass primitives: MagneticButton, Reveal, Aurora,
-                    Marquee, MediaCard, Grain
+                    Marquee, MediaCard, Grain, GlassIcon, GlassAlphaFilter
+  work/             WorkGrid — the filterable portfolio grid
+  contact/          ContactForm, ProjectBrief
+functions/
+  api/brief.ts      Cloudflare Pages Function behind the brief form
 lib/
   site.ts           Brand name, URL, email, socials  ← edit first
-  data.ts           ALL copy: projects, cases, plans, FAQ, testimonials
+  data.ts           ALL copy: projects, plans, FAQ, testimonials, founder
+  seo.ts            pageMeta() — per-page title/canonical/OG/Twitter
 public/
   videos/           hero.mp4 (2.1 MB), hero-mobile.mp4, hero-poster.jpg
   logo/             mark.png (nav), mark-liquid.png (violet glass mark)
+  work/             Self-hosted portfolio media
+  _headers          Security + cache headers, applied by Cloudflare Pages
 ```
 
 **To change any copy or project, edit `lib/data.ts` — no component edits needed.**
@@ -107,18 +117,18 @@ Utility classes live in `app/globals.css`: `.glass`, `.glass-specular`, `.glass-
 
 ## Portfolio media
 
-28 placeholder projects (24 stills + 4 five-second clips) generated with Artlist — Seedream 5.0 for images, Seedance 2.0 Mini for video — covering skincare, fashion, technology, food & beverage, automotive, luxury, wellness and music.
+31 projects, mostly placeholders generated with Artlist — Seedream 5.0 for images, Seedance 2.0 Mini for video — covering skincare, fashion, technology, food & beverage, automotive, luxury, wellness and music.
 
 | Category | Count |
 |---|---|
-| AI Influencer | 5 |
+| AI Influencer | 8 |
 | Talking Head | 4 |
 | Product Photography | 7 |
 | Product Video | 5 |
 | Video Editing | 3 |
 | Visual Art | 4 |
 
-They're served from Artlist's CDN, not `public/`. **Before you go live, self-host them:** download each `src` URL into `public/work/` and replace the value with `/work/filename.jpg`. Hotlinking a CDN you don't control is fine for review, risky for production.
+**Only the three Roxy Daytona pieces are self-hosted in `public/work/`. The other 28 still hotlink Artlist's CDN.** Two reasons to finish the job: images on a domain you don't own can't rank in Google Images for GrowFrame, and your main sales page depends on someone else's CDN staying up. Download each remaining `src` into `public/work/` and swap the value for `/work/filename.webp`.
 
 To swap in real client work: drop files into `public/work/`, point each project's `src` at them, and set `format: 'Video' | 'Image'`.
 
@@ -136,7 +146,7 @@ Test a real production build locally with `npm run pages:preview`.
 
 ## Project brief emails (setup required)
 
-`/contact` is a Project Brief form. On submit it POSTs to `app/api/brief/route.ts`, which sends you a formatted HTML email via [Resend](https://resend.com) — free tier covers 3,000 emails/month.
+`/contact` is a Project Brief form. On submit it POSTs to `functions/api/brief.ts` — a Cloudflare Pages Function, since the Next app itself is a static export with no server — which sends you a formatted HTML email via [Resend](https://resend.com). Free tier covers 3,000 emails/month.
 
 **To turn it on:**
 
@@ -156,12 +166,33 @@ That's it. Briefs arrive at `hello@growframestudio.bond` with the visitor's addr
 
 **Without a key configured**, nothing breaks: the form falls back to opening the visitor's mail app with every field pre-filled. A hidden honeypot field silently drops bot submissions.
 
-To swap Resend for another provider, `app/api/brief/route.ts` is the only file to touch — it's a plain `fetch` call, no SDK.
+To swap Resend for another provider, `functions/api/brief.ts` is the only file to touch — it's a plain `fetch` call, no SDK.
 
 ## Page structure
 
 - **Home** — hero reel → manifesto → six services → portfolio CTA band → process → testimonials → pricing → FAQ → closing CTA
 - **/work** — the portfolio, filterable by the six services
+- **/about** — studio positioning and founder
 - **/contact** — brief form
+
+The portfolio no longer appears inline on the homepage; the CTA band teases six featured frames and sends people to `/work`.
+
+## SEO
+
+Every page's metadata comes from `pageMeta()` in `lib/seo.ts`:
+
+```ts
+export const metadata: Metadata = pageMeta({
+  title: 'Portfolio',        // brand suffix is added for you
+  description: '…',
+  path: '/work',             // drives canonical + og:url
+})
+```
+
+Use it for any new page. Next.js **shallow**-merges metadata, so a page that defines `openGraph` replaces the layout's version outright — set only `openGraph.title` by hand and you silently lose `images`, `type` and `siteName`, which strips the card image off every share. `pageMeta()` re-declares the whole object so that can't happen.
+
+Registered at Google Search Console as a **Domain property**. That variant needs the sitemap submitted as a full URL (`https://growframestudio.bond/sitemap.xml`), not the bare `sitemap.xml` path a URL-prefix property accepts.
+
+Cloudflare prepends its own managed block to `robots.txt`, so the served file is longer than `app/robots.ts`. It allows Googlebot and blocks AI training crawlers — Googlebot itself is unaffected.
 
 The portfolio no longer appears inline on the homepage; the CTA band teases six featured frames and sends people to `/work`.

@@ -4,15 +4,17 @@ import Aurora from '@/components/ui/Aurora'
 import Reveal, { RevealWords } from '@/components/ui/Reveal'
 import MagneticButton from '@/components/ui/MagneticButton'
 import GlassIcon from '@/components/ui/GlassIcon'
+import StoryVideo from '@/components/ui/StoryVideo'
 import { founder, story, values } from '@/lib/data'
 import { site } from '@/lib/site'
+import { pageMeta } from '@/lib/seo'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'About',
   description:
     'GrowFrame is a subscription creative studio pairing AI production tools with human art direction — founded by Annabil Aska Pratama, AI Visual Artist and Creative Director.',
-  alternates: { canonical: '/about' },
-}
+  path: '/about',
+})
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -89,11 +91,12 @@ export default function AboutPage() {
             />
             <div className="relative grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
               <div>
-                <GlassIcon name="rocket" size={92} className="mb-6" tilt={8} />
-                <p className="text-[11px] uppercase tracking-[0.24em] text-violet-300/70">
-                  Our story
-                </p>
-                <h2 className="mt-6 text-headline font-semibold">
+                <StoryVideo
+                  src="/videos/story.mp4"
+                  poster="/videos/story-poster.jpg"
+                  className="max-w-[340px]"
+                />
+                <h2 className="mt-9 text-headline font-semibold">
                   <RevealWords text="Built for the" />{' '}
                   <span className="text-gradient">
                     <RevealWords text="new pace." delay={0.15} />

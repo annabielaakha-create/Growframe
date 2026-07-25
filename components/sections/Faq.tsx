@@ -13,13 +13,21 @@ export default function Faq() {
       <div className="shell grid gap-12 md:grid-cols-[0.85fr_1.15fr] md:gap-20">
         <div>
           <p className="text-[11px] uppercase tracking-[0.24em] text-violet-300/70">FAQ</p>
-          <h2 className="mt-6 text-headline font-semibold">
-            <RevealWords text="Good" />{' '}
-            <span className="text-gradient">
+          {/*
+            Not `text-display`: that clamp tops out at 10rem, sized for the
+            full-width closing CTA. This heading lives in the ~476px left
+            column, so it gets its own ceiling — same leading and tracking,
+            small enough that "questions." never overruns the column.
+          */}
+          <h2 className="mt-7 text-[clamp(2.6rem,6vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.04em]">
+            <span className="block text-chalk">
+              <RevealWords text="Good" />
+            </span>
+            <span className="block text-gradient">
               <RevealWords text="questions." delay={0.12} />
             </span>
           </h2>
-          <p className="mt-6 max-w-[320px] text-[15px] leading-relaxed text-white/45">
+          <p className="mt-8 max-w-[320px] text-[15px] leading-relaxed text-white/45">
             Still curious? Email us — a human replies, usually within the hour.
           </p>
         </div>

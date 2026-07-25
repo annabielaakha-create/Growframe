@@ -732,6 +732,6 @@ export const faqs = [
   },
   {
     q: 'Can I pause or cancel?',
-    a: 'Any time, from your dashboard. Pause for a month and pick up the same queue where you left it. No contracts, no exit fees.',
+    a: 'Pause any time — your queue is held exactly where you left it and picks back up when you return. There are no contracts and no exit fees. Cancelling stops all future billing, but the period you have already paid for is non-refundable, so if you only need a break, pause rather than cancel.',
   },
 ]

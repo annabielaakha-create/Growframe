@@ -5,13 +5,14 @@ import ClosingCta from '@/components/sections/ClosingCta'
 import Marquee from '@/components/ui/Marquee'
 import { RevealWords } from '@/components/ui/Reveal'
 import { clients, projects, services } from '@/lib/data'
+import { pageMeta } from '@/lib/seo'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Portfolio',
   description:
     'AI influencers, talking-head video, product photography and videography, video editing and AI visual art — selected GrowFrame projects across skincare, fashion, technology, food and automotive.',
-  alternates: { canonical: '/work' },
-}
+  path: '/work',
+})
 
 export default function WorkPage() {
   return (

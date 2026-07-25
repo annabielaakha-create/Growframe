@@ -8,7 +8,7 @@ export const site = {
   email: 'hello@growframestudio.bond',
   instagram: 'https://www.instagram.com/growframe.studio/',
   whatsapp: 'https://wa.me/6282220459249',
-  linkedin: 'https://linkedin.com/company/growframe',
+  linkedin: 'https://www.linkedin.com/company/growframe-talent/',
   ogImage: '/videos/hero-poster.jpg',
 } as const
 
