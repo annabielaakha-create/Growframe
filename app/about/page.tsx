@@ -4,7 +4,7 @@ import Aurora from '@/components/ui/Aurora'
 import Reveal, { RevealWords } from '@/components/ui/Reveal'
 import MagneticButton from '@/components/ui/MagneticButton'
 import GlassIcon from '@/components/ui/GlassIcon'
-import StoryVideo from '@/components/ui/StoryVideo'
+
 import { founder, story, values } from '@/lib/data'
 import { site } from '@/lib/site'
 import { pageMeta } from '@/lib/seo'
@@ -90,13 +90,17 @@ export default function AboutPage() {
               }}
             />
             <div className="relative grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+              {/*
+                The story video is parked, not deleted. /about was throwing a
+                client-side exception and StoryVideo was the only new client
+                component on the page — prime suspect, though never confirmed
+                against a real console message. Restore it from
+                components/ui/StoryVideo.tsx (still in the repo, with
+                public/videos/story.mp4) once the error is identified.
+              */}
               <div>
-                <StoryVideo
-                  src="/videos/story.mp4"
-                  poster="/videos/story-poster.jpg"
-                  className="max-w-[340px]"
-                />
-                <h2 className="mt-9 text-headline font-semibold">
+                <GlassIcon name="rocket" size={92} className="mb-6" tilt={8} />
+                <h2 className="mt-6 text-headline font-semibold">
                   <RevealWords text="Built for the" />{' '}
                   <span className="text-gradient">
                     <RevealWords text="new pace." delay={0.15} />
