@@ -35,9 +35,10 @@ export default function Hero() {
     target: frame,
     offset: ['start end', 'end start'],
   })
-  // The frame settles into place as it enters, then drifts gently.
-  const frameScale = useTransform(frameProgress, [0, 0.35], [0.94, 1])
-  const frameY = useTransform(frameProgress, [0, 1], ['4%', '-4%'])
+  // Drift only. Scaling a container that holds a playing video forces the
+  // compositor to resample every frame — the single most expensive thing on
+  // the page. A small vertical drift gives the same sense of depth for free.
+  const frameY = useTransform(frameProgress, [0, 1], ['3%', '-3%'])
 
   /* ---------- playback ---------- */
   useEffect(() => {
@@ -249,7 +250,7 @@ export default function Hero() {
       {/* ---------------- Featured showreel ---------------- */}
       <motion.div
         ref={frame}
-        style={{ scale: frameScale, y: frameY }}
+        style={{ y: frameY }}
         className="relative pb-24 md:pb-32"
       >
         <div className="shell">
@@ -259,13 +260,18 @@ export default function Hero() {
             transition={{ duration: 1.3, delay: 1.15, ease: easeApple }}
             className="group relative"
           >
-            {/* glow bed */}
+            {/* glow bed — gradient, not a blurred box: this sits inside a
+                parallax transform, so a 90px blur would re-rasterise on scroll */}
             <div
               aria-hidden
-              className="pointer-events-none absolute -inset-x-10 -bottom-10 top-10 rounded-[48px] bg-violet-700/30 blur-[90px]"
+              className="pointer-events-none absolute -inset-x-10 -bottom-10 top-10"
+              style={{
+                background:
+                  'radial-gradient(55% 50% at 50% 60%, rgba(109,40,217,0.38) 0%, rgba(109,40,217,0) 72%)',
+              }}
             />
 
-            <figure className="glass glass-specular glass-hairline relative overflow-hidden rounded-[28px] p-2 shadow-[0_60px_140px_-40px_rgba(76,29,149,0.75)] md:rounded-[40px] md:p-3">
+            <figure className="glass glass-specular glass-hairline relative overflow-hidden rounded-[28px] p-2 shadow-[0_40px_90px_-32px_rgba(76,29,149,0.7)] md:rounded-[40px] md:p-3">
               <div className="relative aspect-video w-full overflow-hidden rounded-[22px] bg-ink md:rounded-[32px]">
                 <video
                   ref={videoRef}

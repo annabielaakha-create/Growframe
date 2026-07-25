@@ -81,7 +81,11 @@ export default function AboutPage() {
           <div className="glass glass-specular glass-hairline relative overflow-hidden rounded-[36px] px-7 py-14 md:px-16 md:py-20">
             <div
               aria-hidden
-              className="pointer-events-none absolute -right-1/4 top-0 h-[34rem] w-[34rem] rounded-full bg-violet-700/25 blur-[120px]"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(45% 55% at 92% 8%, rgba(109,40,217,0.3) 0%, rgba(109,40,217,0) 70%)',
+              }}
             />
             <div className="relative grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
               <div>
@@ -163,7 +167,11 @@ export default function AboutPage() {
                 {/* halo behind the disc */}
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-4 rounded-full bg-violet-600/30 blur-[70px]"
+                  className="pointer-events-none absolute -inset-6"
+                  style={{
+                    background:
+                      'radial-gradient(50% 50% at 50% 50%, rgba(124,58,237,0.34) 0%, rgba(124,58,237,0) 70%)',
+                  }}
                 />
 
                 {/* glass ring, sized exactly to the circular artwork */}
@@ -254,7 +262,11 @@ export default function AboutPage() {
           <div className="glass glass-specular glass-hairline relative overflow-hidden rounded-[36px] px-7 py-16 text-center md:px-16 md:py-24">
             <div
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[32rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-700/30 blur-[120px]"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(55% 65% at 50% 50%, rgba(109,40,217,0.34) 0%, rgba(109,40,217,0) 72%)',
+              }}
             />
             <div className="relative">
               <span className="eyebrow">

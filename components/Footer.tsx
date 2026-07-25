@@ -32,7 +32,11 @@ export default function Footer() {
     <footer className="relative overflow-hidden border-t border-white/[0.07] pt-20">
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-[45%] left-1/2 h-[60vw] w-[90vw] -translate-x-1/2 rounded-full bg-violet-800/25 blur-[150px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[60vw]"
+        style={{
+          background:
+            'radial-gradient(50% 70% at 50% 100%, rgba(76,29,149,0.32) 0%, rgba(76,29,149,0) 72%)',
+        }}
       />
 
       <div className="shell relative">

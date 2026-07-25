@@ -77,11 +77,11 @@ export default function MediaCard({
             Featured
           </span>
         )}
-        <span className="glass rounded-pill px-3 py-1.5 text-[11px] tracking-wide text-white/80">
+        <span className="glass-flat rounded-pill px-3 py-1.5 text-[11px] tracking-wide text-white/80">
           {project.category}
         </span>
         {project.format === 'Video' && (
-          <span className="glass flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-[11px] text-white/80">
+          <span className="glass-flat flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-[11px] text-white/80">
             <span className="h-1.5 w-1.5 rounded-full bg-violet-300 animate-blink" />
             Reel
           </span>

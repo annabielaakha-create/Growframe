@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import MagneticButton from '@/components/ui/MagneticButton'
@@ -14,23 +15,21 @@ export default function ClosingCta() {
 
   return (
     <section ref={ref} className="relative overflow-hidden py-28 md:py-40">
-      {/* video plate reused as ambient texture */}
+      {/* Still frame, not a second video. A looping 2.6MB decode behind a panel
+          that's 82% covered by a scrim cost far more than it showed. */}
       <motion.div style={{ scale }} className="absolute inset-0">
-        <video
-          className="h-full w-full object-cover"
-          src="/videos/hero.mp4"
-          poster="/videos/hero-poster.jpg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
+        <Image
+          src="/videos/hero-poster.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover"
           aria-hidden
         />
       </motion.div>
       <div className="absolute inset-0 bg-ink/[0.82]" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink via-transparent to-ink" />
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-800/40 to-transparent mix-blend-color" />
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-800/40 to-transparent" />
 
       <motion.div style={{ y }} className="shell relative text-center">
         <GlassIcon name="key" size={110} className="mx-auto mb-8" tilt={-4} />

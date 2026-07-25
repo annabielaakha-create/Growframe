@@ -46,7 +46,7 @@ const config: Config = {
         pill: '999px',
       },
       backdropBlur: {
-        glass: '28px',
+        glass: '14px',
       },
       boxShadow: {
         glass:

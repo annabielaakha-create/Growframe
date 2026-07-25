@@ -24,10 +24,14 @@ export default function WorkCta() {
     <section ref={ref} id="work" className="section overflow-hidden">
       <div className="shell">
         <div className="glass glass-specular glass-hairline relative overflow-hidden rounded-[28px] px-5 py-12 xs:px-7 xs:py-14 md:rounded-[36px] md:px-14 md:py-20">
-          {/* ambient bloom */}
+          {/* ambient bloom (gradient — see Hero for why not blur) */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -left-1/4 top-1/2 h-[38rem] w-[38rem] -translate-y-1/2 rounded-full bg-violet-700/25 blur-[130px]"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(45% 60% at 8% 50%, rgba(109,40,217,0.3) 0%, rgba(109,40,217,0) 70%)',
+            }}
           />
 
           <div className="relative grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">

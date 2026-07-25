@@ -100,7 +100,11 @@ export default function ProjectBrief() {
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute left-1/2 top-0 h-[24rem] w-[32rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-violet-600/30 blur-[110px]"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(55% 55% at 50% 0%, rgba(124,58,237,0.32) 0%, rgba(124,58,237,0) 70%)',
+          }}
         />
         <div className="relative">
           <motion.span

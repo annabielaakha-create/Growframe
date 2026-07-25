@@ -21,12 +21,14 @@ export default function SmoothScroll() {
       return
     }
 
+    // Shorter duration = the page tracks the wheel more closely. 1.15s read as
+    // "heavy"; 0.8 keeps the glide without the lag behind your input.
     const lenis = new Lenis({
-      duration: 1.15,
+      duration: 0.8,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 1,
-      touchMultiplier: 1.6,
+      touchMultiplier: 1.5,
     })
 
     lenis.on('scroll', ScrollTrigger.update)
