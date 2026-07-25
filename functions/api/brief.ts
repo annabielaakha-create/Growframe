@@ -1,9 +1,22 @@
-import { NextResponse } from 'next/server'
-import { site } from '@/lib/site'
+/**
+ * POST /api/brief — Cloudflare Pages Function
+ *
+ * Sends the project brief through Resend. This is plain Workers code, not
+ * Next.js: Cloudflare runs anything under /functions automatically, matching
+ * the file path to the URL. Nothing here depends on a Next.js adapter, so it
+ * can't be broken by one being deprecated.
+ *
+ * Env vars are set in the Pages dashboard (Settings → Environment variables):
+ *   RESEND_API_KEY     required — your key from resend.com
+ *   BRIEF_TO_EMAIL     optional — defaults to hello@growframestudio.bond
+ *   BRIEF_FROM_EMAIL   optional — defaults to Resend's shared test sender
+ */
 
-// Edge runtime — required by Cloudflare Pages (@cloudflare/next-on-pages).
-// The handler only uses fetch + Web APIs, so it runs unchanged on Vercel too.
-export const runtime = 'edge'
+type Env = {
+  RESEND_API_KEY?: string
+  BRIEF_TO_EMAIL?: string
+  BRIEF_FROM_EMAIL?: string
+}
 
 type Brief = {
   name?: string
@@ -19,12 +32,20 @@ type Brief = {
   website?: string
 }
 
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
+
 const esc = (v = '') =>
-  String(v).replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string,
+  String(v).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string,
   )
 
-/** "Growth — New Project Inquiry — John Doe", or no package prefix when unsure. */
+/** "Scale — New Project Inquiry — John Doe", with no prefix when unsure. */
 function buildSubject(pkg: string | undefined, name: string) {
   const base = `New Project Inquiry — ${name}`
   if (!pkg || pkg === 'Not Sure Yet') return base
@@ -39,8 +60,6 @@ function buildHtml(b: Brief) {
            <td style="padding:14px 0;border-bottom:1px solid #eceaf3;color:#14101f;font-size:15px;vertical-align:top;">${esc(value)}</td>
          </tr>`
       : ''
-
-  const services = b.services?.length ? b.services.join(' · ') : '—'
 
   return `<!doctype html>
 <html><body style="margin:0;padding:32px 16px;background:#f5f3fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;">
@@ -59,7 +78,7 @@ function buildHtml(b: Brief) {
           ${row('Company', b.company)}
           ${row('Work email', b.email)}
           ${row('Phone', b.phone)}
-          ${row('Services', services)}
+          ${row('Services', b.services?.length ? b.services.join(' · ') : '—')}
           ${row('Package', b.pkg)}
           ${row('Timeline', b.timeline)}
           ${row('Prefers', b.channel)}
@@ -95,49 +114,45 @@ function buildText(b: Brief) {
   ].join('\n')
 }
 
-export async function POST(request: Request) {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   let body: Brief
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ ok: false, error: 'Invalid request.' }, { status: 400 })
+    return json({ ok: false, error: 'Invalid request.' }, 400)
   }
 
   // Silently accept bot submissions so they don't retry.
-  if (body.website) return NextResponse.json({ ok: true })
+  if (body.website) return json({ ok: true })
 
   const name = body.name?.trim()
   const email = body.email?.trim()
   const message = body.message?.trim()
 
   if (!name || !email || !message) {
-    return NextResponse.json(
+    return json(
       { ok: false, error: 'Name, work email and project details are required.' },
-      { status: 422 },
+      422,
     )
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ ok: false, error: 'That email looks incomplete.' }, { status: 422 })
+    return json({ ok: false, error: 'That email looks incomplete.' }, 422)
   }
 
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
+  if (!env.RESEND_API_KEY) {
     // Not configured yet — the client falls back to opening a mail draft.
-    return NextResponse.json(
-      { ok: false, error: 'Email service not configured.', fallback: true },
-      { status: 503 },
-    )
+    return json({ ok: false, error: 'Email service not configured.', fallback: true }, 503)
   }
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.BRIEF_FROM_EMAIL || 'GrowFrame Briefs <onboarding@resend.dev>',
-      to: [process.env.BRIEF_TO_EMAIL || site.email],
+      from: env.BRIEF_FROM_EMAIL || 'GrowFrame Briefs <onboarding@resend.dev>',
+      to: [env.BRIEF_TO_EMAIL || 'hello@growframestudio.bond'],
       reply_to: email,
       subject: buildSubject(body.pkg, name),
       html: buildHtml({ ...body, name, email, message }),
@@ -146,13 +161,13 @@ export async function POST(request: Request) {
   })
 
   if (!res.ok) {
-    const detail = await res.text().catch(() => '')
-    console.error('Resend error:', res.status, detail)
-    return NextResponse.json(
-      { ok: false, error: 'We could not send that just now.', fallback: true },
-      { status: 502 },
-    )
+    console.error('Resend error:', res.status, await res.text().catch(() => ''))
+    return json({ ok: false, error: 'We could not send that just now.', fallback: true }, 502)
   }
 
-  return NextResponse.json({ ok: true })
+  return json({ ok: true })
 }
+
+/** Anything other than POST gets a clear answer rather than a 404. */
+export const onRequestGet: PagesFunction<Env> = async () =>
+  json({ ok: false, error: 'Send a POST request with the brief payload.' }, 405)

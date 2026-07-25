@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Fully static build -> `out/`. Every page here is static, so there's no
+  // server to host: Cloudflare Pages serves the files from its edge network.
+  // The brief form is handled by functions/api/brief.ts (a Pages Function),
+  // which keeps us off the deprecated next-on-pages adapter entirely.
+  output: 'export',
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
