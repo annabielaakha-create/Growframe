@@ -15,21 +15,35 @@ export default function Manifesto() {
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Respect the OS setting: with reduced motion the copy just stays readable.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
     gsap.registerPlugin(ScrollTrigger)
     const ctx = gsap.context(() => {
       const words = gsap.utils.toArray<HTMLElement>('.mf-word')
-      gsap.set(words, { opacity: 0.13 })
-      gsap.to(words, {
-        opacity: 1,
-        ease: 'none',
-        stagger: 0.35,
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top 72%',
-          end: 'bottom 62%',
-          scrub: 0.6,
-        },
-      })
+
+      // fromTo with immediateRender:false rather than a bare set() + to().
+      // set() dims every word the moment this effect runs; if ScrollTrigger
+      // then fails to activate — a refresh timing issue, a restored scroll
+      // position, a thrown plugin error — the paragraph is stranded at 13%
+      // opacity and reads as missing. This way the words stay fully legible
+      // until the trigger genuinely starts driving them.
+      gsap.fromTo(
+        words,
+        { opacity: 0.13 },
+        {
+          opacity: 1,
+          ease: 'none',
+          stagger: 0.35,
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top 72%',
+            end: 'bottom 62%',
+            scrub: 0.6,
+          },
+        }
+      )
     }, root)
     return () => ctx.revert()
   }, [])
