@@ -1,19 +1,60 @@
 'use client'
 
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import type { ReactNode } from 'react'
-
-/**
- * Reveal animations hide their content until an intersection callback fires.
- * That makes the resting state invisible — if the callback never runs (reduced
- * motion, a stalled observer, a restored scroll position), the copy is simply
- * gone from the page. Both components below therefore bail out to plain,
- * visible markup whenever the animation isn't going to run, and trigger on the
- * first pixel of intersection rather than a negative margin that can leave a
- * heading permanently below the threshold.
- */
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 const easeApple = [0.22, 1, 0.36, 1] as const
+
+/**
+ * Reveal animations used to ship their hidden state in the server HTML —
+ * `opacity:0; transform:translateY(110%)` straight out of framer-motion's
+ * `initial`. Anything that stopped the trigger from firing (no JS, a hydration
+ * error, an observer that never reported) left the copy permanently invisible.
+ * Headlines were vanishing site-wide because of it.
+ *
+ * The default is now inverted: text renders plain and visible, and the
+ * animation is opted into only once the client has confirmed it can run it.
+ *
+ *   'static'  — plain visible markup. Server render, no JS, reduced motion, or
+ *               already on screen at mount (nothing to reveal — it's been seen).
+ *   'armed'   — below the fold, JS is alive: hide it and wait for the scroll.
+ *   'shown'   — the observer fired, play the reveal.
+ *
+ * Worst case is now a missed animation, never missing words.
+ */
+type Mode = 'static' | 'armed' | 'shown'
+
+function useReveal<T extends HTMLElement>(enabled: boolean) {
+  const ref = useRef<T>(null)
+  const [mode, setMode] = useState<Mode>('static')
+
+  useEffect(() => {
+    if (!enabled) return
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+
+    // Already on screen when the page loads: leave it visible. Arming it here
+    // would blink the text out and back in for no reason.
+    const r = el.getBoundingClientRect()
+    if (r.top < window.innerHeight && r.bottom > 0) return
+
+    setMode('armed')
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setMode('shown')
+          io.disconnect()
+        }
+      },
+      { threshold: 0.05 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [enabled])
+
+  return [ref, mode] as const
+}
 
 const variants: Variants = {
   hidden: { opacity: 0, y: 34, filter: 'blur(10px)' },
@@ -43,22 +84,27 @@ export default function Reveal({
   className?: string
   as?: keyof typeof tags
 }) {
-  const MotionTag = tags[as] as typeof motion.div
   const reduce = useReducedMotion()
+  const [ref, mode] = useReveal<HTMLDivElement>(!reduce)
+  const Tag = as
 
-  if (reduce) {
-    const Tag = as
-    return <Tag className={className}>{children}</Tag>
+  if (mode === 'static') {
+    return (
+      <Tag ref={ref as never} className={className}>
+        {children}
+      </Tag>
+    )
   }
 
+  const MotionTag = tags[as] as typeof motion.div
   return (
     <MotionTag
+      ref={ref}
       className={className}
       custom={delay}
       variants={variants}
       initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.1 }}
+      animate={mode === 'shown' ? 'show' : 'hidden'}
     >
       {children}
     </MotionTag>
@@ -75,24 +121,30 @@ export function RevealWords({
   className?: string
   delay?: number
 }) {
-  const words = text.split(' ')
   const reduce = useReducedMotion()
+  const [ref, mode] = useReveal<HTMLSpanElement>(!reduce)
 
-  if (reduce) return <span className={className}>{text}</span>
+  if (mode === 'static') {
+    return (
+      <span ref={ref} className={className}>
+        {text}
+      </span>
+    )
+  }
 
+  const words = text.split(' ')
   return (
-    <span className={className}>
+    <span ref={ref} className={className}>
       {words.map((w, i) => (
         <span key={`${w}-${i}`} className="inline-block overflow-hidden align-bottom">
           <motion.span
             className="inline-block"
             initial={{ y: '110%', opacity: 0 }}
-            whileInView={{ y: '0%', opacity: 1 }}
-            viewport={{ once: true, amount: 0.1 }}
+            animate={mode === 'shown' ? { y: '0%', opacity: 1 } : { y: '110%', opacity: 0 }}
             transition={{ duration: 1, delay: delay + i * 0.055, ease: easeApple }}
           >
             {w}
-            {i < words.length - 1 ? ' ' : ''}
+            {i < words.length - 1 ? ' ' : ''}
           </motion.span>
         </span>
       ))}
