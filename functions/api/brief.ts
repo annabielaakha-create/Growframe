@@ -154,28 +154,41 @@ export const onRequestPost = async ({ request, env }: Ctx): Promise<Response> =>
     return json({ ok: false, error: 'Email service not configured.', fallback: true }, 503)
   }
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: env.BRIEF_FROM_EMAIL || 'GrowFrame Briefs <onboarding@resend.dev>',
-      to: [env.BRIEF_TO_EMAIL || 'hello@growframestudio.bond'],
-      reply_to: email,
-      subject: buildSubject(body.pkg, name),
-      html: buildHtml({ ...body, name, email, message }),
-      text: buildText({ ...body, name, email, message }),
-    }),
-  })
+  // Everything from here is wrapped: an uncaught throw makes the Worker return
+  // Cloudflare's HTML error page, the client's res.json() fails, and the form
+  // shows a bare "Something went wrong" instead of falling back to a mail
+  // draft. Any failure must still come back as JSON carrying `fallback: true`.
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: env.BRIEF_FROM_EMAIL || 'GrowFrame Briefs <onboarding@resend.dev>',
+        to: [env.BRIEF_TO_EMAIL || 'hello@growframestudio.bond'],
+        reply_to: email,
+        subject: buildSubject(body.pkg, name),
+        html: buildHtml({ ...body, name, email, message }),
+        text: buildText({ ...body, name, email, message }),
+      }),
+    })
 
-  if (!res.ok) {
-    console.error('Resend error:', res.status, await res.text().catch(() => ''))
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '')
+      console.error('Resend rejected the send:', res.status, detail)
+      return json(
+        { ok: false, error: 'We could not send that just now.', fallback: true, status: res.status },
+        502,
+      )
+    }
+
+    return json({ ok: true })
+  } catch (err) {
+    console.error('Resend request threw:', err)
     return json({ ok: false, error: 'We could not send that just now.', fallback: true }, 502)
   }
-
-  return json({ ok: true })
 }
 
 /** Anything other than POST gets a clear answer rather than a 404. */
