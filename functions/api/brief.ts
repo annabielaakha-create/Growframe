@@ -149,7 +149,16 @@ export const onRequestPost = async ({ request, env }: Ctx): Promise<Response> =>
     return json({ ok: false, error: 'That email looks incomplete.' }, 422)
   }
 
-  if (!env.RESEND_API_KEY) {
+  // Trimmed, because these are pasted into the Pages dashboard by hand. A
+  // trailing newline or space in the key survives into the Authorization
+  // header, and fetch throws "Invalid header value" before the request is even
+  // made — an uncaught throw that reaches the user as a bare error instead of
+  // the mail-draft fallback.
+  const apiKey = env.RESEND_API_KEY?.trim()
+  const from = env.BRIEF_FROM_EMAIL?.trim() || 'GrowFrame Briefs <onboarding@resend.dev>'
+  const to = env.BRIEF_TO_EMAIL?.trim() || 'hello@growframestudio.bond'
+
+  if (!apiKey) {
     // Not configured yet — the client falls back to opening a mail draft.
     return json({ ok: false, error: 'Email service not configured.', fallback: true }, 503)
   }
@@ -162,12 +171,12 @@ export const onRequestPost = async ({ request, env }: Ctx): Promise<Response> =>
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: env.BRIEF_FROM_EMAIL || 'GrowFrame Briefs <onboarding@resend.dev>',
-        to: [env.BRIEF_TO_EMAIL || 'hello@growframestudio.bond'],
+        from,
+        to: [to],
         reply_to: email,
         subject: buildSubject(body.pkg, name),
         html: buildHtml({ ...body, name, email, message }),
