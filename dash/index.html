@@ -6,6 +6,12 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#100D18">
 <title>GrowFrame — Personal Creative Workspace</title>
+<link rel="apple-touch-icon" href="/dash-icon.png">
+<link rel="icon" type="image/png" href="/dash-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GrowFrame">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>
 :root{
   --bg:#100D18; --bg2:#181323; --bg3:#1F1830;
@@ -47,10 +53,9 @@ a{color:var(--accent2);text-decoration:none}
   background:rgba(16,13,24,.86); backdrop-filter:blur(18px);
   border-right:1px solid var(--line); transition:transform .22s ease;
 }
-.brand{display:flex;align-items:center;gap:9px;padding:4px 8px 18px}
-.brand .dot{width:26px;height:26px;border-radius:8px;flex:none;
-  background:linear-gradient(145deg,var(--accent),#5B8CFF);
-  box-shadow:0 0 18px -4px var(--accent)}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.brand .mark{width:29px;height:23px;flex:none;color:#fff;
+  filter:drop-shadow(0 0 10px rgba(185,162,255,.45))}
 .brand b{font-size:15.5px;letter-spacing:-.02em;font-weight:650}
 .navlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
   color:var(--muted);opacity:.65;padding:12px 10px 5px}
@@ -196,6 +201,44 @@ select.in{appearance:none;background-image:linear-gradient(45deg,transparent 50%
 .cev{margin-top:3px;font-size:10.5px;padding:1.5px 5px;border-radius:5px;
   background:rgba(139,92,246,.26);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* ---------- project table (Wrike-style) ---------- */
+.ptable{border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;
+  background:var(--glass);box-shadow:var(--shadow)}
+.pscroll{overflow-x:auto}
+.ptable .thead,.prow{display:grid;align-items:center;
+  grid-template-columns:26px minmax(210px,2.1fr) minmax(120px,1fr) 118px 126px 110px 92px 84px;
+  gap:10px;padding:9px 14px;min-width:960px}
+.ptable .thead{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);border-bottom:1px solid var(--line);background:rgba(185,162,255,.04)}
+.pgroup{border-top:1px solid var(--line)}
+.pgroup:first-of-type{border-top:0}
+.ghead{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;
+  background:rgba(185,162,255,.05);font-size:12.5px;font-weight:600;
+  position:sticky;left:0;transition:.14s}
+.ghead:hover{background:rgba(185,162,255,.09)}
+.ghead .caret{width:13px;color:var(--muted);transition:transform .16s;display:inline-block}
+.ghead.closed .caret{transform:rotate(-90deg)}
+.ghead .ct{font-size:11px;color:var(--muted);background:rgba(185,162,255,.12);
+  padding:0 8px;border-radius:99px;font-weight:500}
+.pgroup.over .ghead{background:rgba(139,92,246,.26);box-shadow:inset 0 0 0 1px var(--accent)}
+.pgroup.over .gbody{background:rgba(139,92,246,.08)}
+.gbody{min-height:6px}
+.pgroup.closed .gbody{display:none}
+.prow{border-top:1px solid rgba(185,162,255,.07);font-size:13px;transition:.12s}
+.prow:hover{background:rgba(185,162,255,.05)}
+.prow.dragging{opacity:.32}
+.grip{cursor:grab;color:var(--muted);opacity:.5;text-align:center;font-size:14px;
+  touch-action:none;user-select:none;-webkit-user-select:none;line-height:1}
+.grip:active{cursor:grabbing}
+.prow:hover .grip{opacity:1}
+.pname{font-weight:560;cursor:pointer}
+.pname:hover{color:var(--accent2)}
+.pghost{position:fixed;z-index:90;pointer-events:none;padding:8px 14px;border-radius:11px;
+  background:#241C3C;border:1px solid var(--accent);font-size:13px;font-weight:560;
+  box-shadow:0 14px 36px -10px rgba(0,0,0,.8);max-width:260px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gempty{padding:10px 14px 12px 40px;color:var(--muted);font-size:12px}
+
 /* ---------- modal / toast ---------- */
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;
   justify-content:center;padding:18px;background:rgba(8,6,13,.66);backdrop-filter:blur(6px)}
@@ -238,7 +281,11 @@ select.in{appearance:none;background-image:linear-gradient(45deg,transparent 50%
 
 <div class="app">
   <aside class="side" id="side">
-    <div class="brand"><span class="dot"></span><b>growframe.</b></div>
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 100 80" fill="currentColor" aria-hidden="true">
+        <path d="M30 0H60V21H21V57H0V30Z"/>
+        <path d="M62 24H100V57L77 80H23V59H79V45H62Z"/>
+      </svg><b>growframe.</b></div>
     <div id="navWrap"></div>
     <div class="foot">
       <button class="nav" data-go="settings">
@@ -465,51 +512,119 @@ function progressOf(p){
 function projOptions(sel){return '<option value="">— tanpa project —</option>'+
   DB.projects.filter(p=>!p.archived).map(p=>`<option value="${p.id}"${sel===p.id?' selected':''}>${esc(p.name)}</option>`).join('')}
 
-/* ============ PROJECTS ============ */
-let pFilter='all';
+/* ============ PROJECTS — tabel berkelompok, geser antar status ============ */
+const PSTAT=[['planning','Planning'],['progress','In Progress'],
+             ['review','Review'],['completed','Completed']];
+let pQ='', pArch=false, pClosed=new Set();
+
 function vProjects(){
-  let list=DB.projects.filter(p=>!p.archived);
-  if(pFilter!=='all'&&pFilter!=='archived')list=list.filter(p=>p.status===pFilter);
-  if(pFilter==='archived')list=DB.projects.filter(p=>p.archived);
+  const q=pQ.toLowerCase();
+  const pool=DB.projects.filter(p=>!!p.archived===pArch&&
+    (!q||((p.name||'')+' '+(p.client||'')).toLowerCase().includes(q)));
 
   return `<div class="phead spread"><div><h2>Project Hub</h2>
-    <p>Kelola project, deliverables, dan status pembayaran.</p></div>
+    <p>Geser baris ke grup status lain untuk memindahkannya.</p></div>
     <button class="btn" data-qa="project">+ Project</button></div>
-  <div class="row" style="margin-bottom:14px">
-    ${['all','planning','progress','review','completed','archived']
-      .map(f=>`<span class="chip${pFilter===f?' on':''}" data-pf="${f}">${f==='all'?'Semua':f==='archived'?'Arsip':stLabel(f)}</span>`).join('')}
-  </div>
-  ${list.length?`<div class="grid g2">${list.map(projCard).join('')}</div>`
-    :empty('Belum ada project di filter ini','Tambahkan lewat tombol + Project.')}`;
+  <div class="spread" style="margin-bottom:13px;flex-wrap:wrap">
+    <div class="row">
+      <span class="chip${!pArch?' on':''}" data-parch="0">Aktif</span>
+      <span class="chip${pArch?' on':''}" data-parch="1">Arsip</span></div>
+    <input class="in" id="pSearch" placeholder="Cari project atau klien…" value="${esc(pQ)}"
+      style="max-width:230px;padding:6px 11px;font-size:13px"></div>
+
+  <div class="ptable"><div class="pscroll">
+    <div class="thead">
+      <span></span><span>Project</span><span>Klien</span><span>Deadline</span>
+      <span>Progress</span><span>Budget</span><span>Bayar</span><span></span></div>
+    ${PSTAT.map(([k,l])=>pGroup(k,l,pool.filter(p=>(p.status||'planning')===k))).join('')}
+  </div></div>
+  ${pool.length?'':`<div class="xs muted" style="margin-top:10px">
+    ${pArch?'Tidak ada project di arsip.':'Belum ada project. Tambahkan lewat + Project.'}</div>`}`;
 }
-function projCard(p){
+
+function pGroup(key,label,rows){
+  const closed=pClosed.has(key);
+  return `<div class="pgroup${closed?' closed':''}" data-group="${key}">
+    <div class="ghead${closed?' closed':''}" data-gtoggle="${key}">
+      <span class="caret">▾</span>
+      <span class="dotbadge" style="background:${
+        {planning:'#A7A0B5',progress:'#60A5FA',review:'#FBBF24',completed:'#4ADE80'}[key]}"></span>
+      ${label}<span class="ct">${rows.length}</span></div>
+    <div class="gbody">${rows.map(pRow).join('')||
+      '<div class="gempty">Belum ada project di sini — geser salah satu ke grup ini.</div>'}</div>
+  </div>`;
+}
+
+function pRow(p){
   const prog=progressOf(p), d=daysTo(p.deadline);
-  const dl=p.deadline?(d<0?`<span style="color:var(--danger)">lewat ${Math.abs(d)} hari</span>`
-    :d===0?'<span style="color:var(--warn)">hari ini</span>':`${d} hari lagi`):'tanpa deadline';
-  return `<div class="card">
-    <div class="spread"><div class="grow" style="min-width:0">
-      <div class="ttl trunc">${esc(p.name)}</div>
-      <div class="sm muted">${esc(p.client||'Tanpa klien')}</div></div>
-      <span class="st st-${p.status||'planning'}">${stLabel(p.status)}</span></div>
-    <div class="bar mt"><i style="width:${prog}%"></i></div>
-    <div class="row sm muted" style="margin-top:9px;gap:14px">
-      <span>${p.deadline?dateID(p.deadline):'—'} · ${dl}</span>
-      ${p.budget?`<span>${rupiah(p.budget)}</span>`:''}
-      ${p.payment?`<span class="tag">${esc(p.payment)}</span>`:''}
-    </div>
-    ${(p.deliverables||[]).length?`<div class="mt">${p.deliverables.map((x,i)=>`
-      <label class="row sm" style="gap:8px;flex-wrap:nowrap;margin:4px 0;cursor:pointer">
-        <input type="checkbox" data-dl="${p.id}:${i}" ${x.done?'checked':''}>
-        <span class="${x.done?'muted':''}" style="${x.done?'text-decoration:line-through':''}">${esc(x.text)}</span>
-      </label>`).join('')}</div>`:''}
-    ${(p.links||[]).length?`<div class="row mt">${p.links.map(l=>
-      `<a class="tag" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||'Link')} ↗</a>`).join('')}</div>`:''}
-    <div class="row mt" style="justify-content:flex-end">
-      <button class="ico" data-open-proj="${p.id}">Edit</button>
-      <button class="ico" data-arch="${p.id}">${p.archived?'Pulihkan':'Arsip'}</button>
-      <button class="ico red" data-del="projects:${p.id}">Hapus</button>
-    </div></div>`;
+  const dl=!p.deadline?'<span class="muted">—</span>'
+    :d<0?`<span style="color:var(--danger)">${dateID(p.deadline)}</span>`
+    :d<=3?`<span style="color:var(--warn)">${dateID(p.deadline)}</span>`
+    :dateID(p.deadline);
+  const done=(p.deliverables||[]).filter(x=>x.done).length, tot=(p.deliverables||[]).length;
+  const pay={Lunas:'var(--ok)',DP:'var(--warn)',Belum:'var(--muted)'}[p.payment]||'var(--muted)';
+  return `<div class="prow" data-row="${p.id}">
+    <span class="grip" data-grip="${p.id}" title="Geser untuk pindah status">⠿</span>
+    <span class="pname trunc" data-open-proj="${p.id}">${esc(p.name)}</span>
+    <span class="trunc muted">${esc(p.client||'—')}</span>
+    <span class="sm">${dl}</span>
+    <span><span class="bar"><i style="width:${prog}%"></i></span>
+      <span class="xs muted">${tot?done+'/'+tot:prog+'%'}</span></span>
+    <span class="sm muted">${p.budget?rupiah(p.budget):'—'}</span>
+    <span class="xs" style="color:${pay}">${esc(p.payment||'Belum')}</span>
+    <span class="row" style="gap:5px;flex-wrap:nowrap;justify-content:flex-end">
+      <button class="ico" data-arch="${p.id}">${p.archived?'↩':'⌫'}</button>
+      <button class="ico red" data-del="projects:${p.id}">×</button></span>
+  </div>`;
 }
+
+/* --- drag antar grup: pointer events, jalan di iPad maupun desktop --- */
+(function(){
+  let drag=null;
+  document.addEventListener('pointerdown',e=>{
+    const g=e.target.closest('[data-grip]'); if(!g)return;
+    e.preventDefault();
+    const p=DB.projects.find(x=>x.id===g.dataset.grip); if(!p)return;
+    const row=g.closest('.prow');
+    drag={id:p.id,from:p.status||'planning',row,ghost:null,over:null};
+    g.setPointerCapture(e.pointerId);
+    const ghost=document.createElement('div');
+    ghost.className='pghost'; ghost.textContent=p.name;
+    document.body.appendChild(ghost); drag.ghost=ghost;
+    moveGhost(e); row.classList.add('dragging');
+  });
+  function moveGhost(e){
+    if(!drag)return;
+    drag.ghost.style.left=(e.clientX+14)+'px';
+    drag.ghost.style.top=(e.clientY-14)+'px';
+  }
+  document.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    moveGhost(e);
+    drag.ghost.style.display='none';
+    const el=document.elementFromPoint(e.clientX,e.clientY);
+    drag.ghost.style.display='';
+    const grp=el&&el.closest?el.closest('.pgroup'):null;
+    if(grp!==drag.over){
+      if(drag.over)drag.over.classList.remove('over');
+      drag.over=grp; if(grp)grp.classList.add('over');
+    }
+  });
+  function finish(){
+    if(!drag)return;
+    const target=drag.over&&drag.over.dataset.group;
+    drag.ghost.remove(); drag.row.classList.remove('dragging');
+    if(drag.over)drag.over.classList.remove('over');
+    const d=drag; drag=null;
+    if(target&&target!==d.from){
+      const p=DB.projects.find(x=>x.id===d.id);
+      p.status=target; p.updatedAt=new Date().toISOString();
+      commit('projects','Dipindah ke '+stLabel(target));
+    }
+  }
+  document.addEventListener('pointerup',finish);
+  document.addEventListener('pointercancel',finish);
+})();
 
 /* ============ TASKS ============ */
 let tView='kanban', tFilter='all';
@@ -841,7 +956,7 @@ function vSearch(){
 
 /* ============ MODAL / QUICK ADD ============ */
 function openSheet(html){ $('#sheet').innerHTML=html; $('#modal').classList.add('on') }
-function closeSheet(){ $('#modal').classList.remove('on') }
+function closeSheet(){ sheetProj=null; $('#modal').classList.remove('on') }
 
 const FORMS={
   project:(p={})=>({title:p.id?'Edit Project':'Project Baru',sub:'Detail utama, sisanya bisa dilengkapi nanti.',
@@ -972,6 +1087,37 @@ function form(kind,existing){
   setTimeout(()=>{const a=$('#sheet .in');a&&a.focus()},60);
 }
 
+let sheetProj=null;
+function openProjSheet(id){
+  const p=DB.projects.find(x=>x.id===id); if(!p)return;
+  sheetProj=id;
+  const done=(p.deliverables||[]).filter(x=>x.done).length, tot=(p.deliverables||[]).length;
+  openSheet(`<h3>${esc(p.name)}</h3>
+    <div class="sub">${esc(p.client||'Tanpa klien')} ·
+      <span class="st st-${p.status||'planning'}">${stLabel(p.status)}</span></div>
+    <div class="grid g2" style="gap:9px">
+      <div class="item"><div class="grow"><div class="xs muted">Deadline</div>
+        <div>${p.deadline?dateID(p.deadline):'—'}</div></div></div>
+      <div class="item"><div class="grow"><div class="xs muted">Budget</div>
+        <div>${p.budget?rupiah(p.budget):'—'} · ${esc(p.payment||'Belum')}</div></div></div></div>
+    <div class="navlbl" style="padding-left:0">Deliverables ${tot?`(${done}/${tot})`:''}</div>
+    ${tot?p.deliverables.map((x,i)=>`
+      <label class="row" style="gap:9px;flex-wrap:nowrap;margin:6px 0;cursor:pointer">
+        <input type="checkbox" data-dl="${p.id}:${i}" ${x.done?'checked':''}>
+        <span class="${x.done?'muted':''}"
+          style="${x.done?'text-decoration:line-through':''}">${esc(x.text)}</span></label>`).join('')
+      :'<div class="xs muted">Belum ada deliverables. Tambahkan lewat Edit.</div>'}
+    ${(p.links||[]).length?`<div class="navlbl" style="padding-left:0">Link</div>
+      <div class="row">${p.links.map(l=>`<a class="tag" href="${esc(l.url)}" target="_blank"
+        rel="noopener">${esc(l.label||'Link')} ↗</a>`).join('')}</div>`:''}
+    ${p.notes?`<div class="navlbl" style="padding-left:0">Catatan</div>
+      <div class="sm muted" style="white-space:pre-wrap">${esc(p.notes)}</div>`:''}
+    <div class="row" style="justify-content:flex-end;margin-top:18px">
+      <button class="btn ghost" id="mCancel">Tutup</button>
+      <button class="btn" data-edit-proj="${p.id}">Edit</button></div>`);
+  $('#mCancel').onclick=()=>{sheetProj=null;closeSheet()};
+}
+
 function quickAdd(){
   const opts=[['project','Project'],['task','Task'],['note','Catatan'],['clip','Teks / Prompt'],
     ['prompt','AI Prompt'],['asset','Aset'],['finance','Transaksi']];
@@ -1008,7 +1154,7 @@ CATATAN PRODUKSI
 
 /* ============ events ============ */
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-go],[data-qa],[data-del],[data-pf],[data-tf],[data-tv],[data-cc],[data-ac],[data-pfav],[data-cpy],[data-pin],[data-note],[data-open-proj],[data-open-task],[data-open-prompt],[data-prcopy],[data-prfav],[data-prdup],[data-acopy],[data-arch],[data-copy-note],[data-flink],[data-fdel],[data-tpl]');
+  const t=e.target.closest('[data-go],[data-qa],[data-del],[data-parch],[data-gtoggle],[data-tf],[data-tv],[data-cc],[data-ac],[data-pfav],[data-cpy],[data-pin],[data-note],[data-open-proj],[data-edit-proj],[data-open-task],[data-open-prompt],[data-prcopy],[data-prfav],[data-prdup],[data-acopy],[data-arch],[data-copy-note],[data-flink],[data-fdel],[data-tpl]');
   if(!t)return;
   const d=t.dataset;
 
@@ -1027,7 +1173,9 @@ document.addEventListener('click',async e=>{
     if(col==='notes'&&nOpen===id)nOpen=null;
     return commit(col,'Dihapus');
   }
-  if(d.pf){pFilter=d.pf;return render()}
+  if(t.hasAttribute('data-parch')){pArch=d.parch==='1';return render()}
+  if(d.gtoggle){pClosed.has(d.gtoggle)?pClosed.delete(d.gtoggle):pClosed.add(d.gtoggle);
+    return render()}
   if(d.tf){tFilter=d.tf;return render()}
   if(d.tv){tView=d.tv;return render()}
   if(d.cc){cCat=d.cc;return render()}
@@ -1036,7 +1184,8 @@ document.addEventListener('click',async e=>{
   if(d.note){nOpen=d.note;return render()}
   if(d.cpy)return copyText(DB.clips.find(c=>c.id===d.cpy).text);
   if(d.pin){const c=DB.clips.find(x=>x.id===d.pin);c.pinned=!c.pinned;return commit('clips')}
-  if(d.openProj)return form('project',DB.projects.find(p=>p.id===d.openProj));
+  if(d.openProj)return openProjSheet(d.openProj);
+  if(d.editProj){sheetProj=null;return form('project',DB.projects.find(p=>p.id===d.editProj))}
   if(d.openTask)return form('task',DB.tasks.find(x=>x.id===d.openTask));
   if(d.openPrompt)return form('prompt',DB.prompts.find(x=>x.id===d.openPrompt));
   if(d.prcopy)return copyText(DB.prompts.find(p=>p.id===d.prcopy).positive);
@@ -1060,13 +1209,18 @@ document.addEventListener('change',e=>{
     t.status=e.target.checked?'done':'todo';return commit('tasks')}
   if(d.dl){const [pid,i]=d.dl.split(':');
     const p=DB.projects.find(x=>x.id===pid);
-    p.deliverables[+i].done=e.target.checked;return commit('projects')}
+    p.deliverables[+i].done=e.target.checked;
+    commit('projects');
+    if(sheetProj===pid)openProjSheet(pid);
+    return}
 });
 
 document.addEventListener('input',e=>{
   const id=e.target.id;
   if(id==='nSearch'){nQ=e.target.value.toLowerCase();const v=e.target.value;render();
     const el=$('#nSearch');if(el){el.value=v;el.focus()}return}
+  if(id==='pSearch'){pQ=e.target.value;render();
+    const el=$('#pSearch');if(el){el.value=pQ;el.focus()}return}
   if(id==='cSearch'){cQ=e.target.value.toLowerCase();const v=e.target.value;render();
     const el=$('#cSearch');if(el){el.value=v;el.focus()}return}
   if(id==='prSearch'){prQ=e.target.value.toLowerCase();const v=e.target.value;render();
