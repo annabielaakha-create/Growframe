@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Annabil Personal Dashboard</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#14171c; --panel2:#0e1116; --line:#242a32;
+    --text:#e8ecf1; --muted:#8b95a3; --accent:#7c5cff; --teal:#3ad1c6;
+    --danger:#ff5f6d; --ok:#48c78e; --warn:#f7b955;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; background:var(--bg); color:var(--text)}
+  body{
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px; line-height:1.5; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:18px 16px 80px}
+
+  header{display:flex; align-items:center; gap:12px; margin-bottom:20px}
+  .mark{width:32px; height:32px; border-radius:9px; flex:none;
+        background:linear-gradient(135deg,var(--accent),var(--teal))}
+  header h1{font-size:17px; margin:0; letter-spacing:-.01em; flex:1}
+  .ghost{background:none; border:1px solid var(--line); color:var(--muted);
+         padding:7px 12px; border-radius:9px; font-size:13px; cursor:pointer}
+  .ghost:hover{color:var(--text); border-color:#39414c}
+
+  nav{display:flex; gap:6px; margin-bottom:20px; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  nav button{
+    flex:none; padding:9px 15px; border-radius:999px; cursor:pointer; font-size:14px;
+    background:var(--panel); border:1px solid var(--line); color:var(--muted);
+  }
+  nav button.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+
+  .panel{display:none}
+  .panel.on{display:block}
+
+  .card{background:var(--panel); border:1px solid var(--line);
+        border-radius:var(--radius); padding:16px; margin-bottom:14px}
+
+  textarea,input,select{
+    width:100%; padding:11px 13px; border-radius:10px; font-size:15px; font-family:inherit;
+    background:var(--panel2); border:1px solid var(--line); color:var(--text);
+  }
+  textarea{min-height:92px; resize:vertical}
+  input:focus,textarea:focus,select:focus{outline:none; border-color:var(--accent)}
+  .row{display:flex; gap:8px; flex-wrap:wrap}
+  .row > *{flex:1; min-width:140px}
+  .mt{margin-top:9px}
+
+  .btn{padding:10px 16px; border:0; border-radius:10px; cursor:pointer;
+       background:var(--accent); color:#fff; font-size:14px; font-weight:600; flex:none}
+  .btn:disabled{opacity:.5; cursor:default}
+  .btn.sec{background:var(--panel2); border:1px solid var(--line); color:var(--text); font-weight:500}
+
+  .item{background:var(--panel); border:1px solid var(--line);
+        border-radius:12px; padding:13px 14px; margin-bottom:9px}
+  .item .top{display:flex; align-items:flex-start; gap:10px}
+  .item .top .grow{flex:1; min-width:0}
+  .ttl{font-weight:600; font-size:14px; word-break:break-word}
+  .sub{font-size:12px; color:var(--muted); margin-top:3px; word-break:break-all}
+  pre.clip{
+    margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
+    white-space:pre-wrap; word-break:break-word; max-height:140px; overflow:auto; color:var(--text);
+  }
+  .acts{display:flex; gap:6px; flex:none}
+  .icon{background:none; border:1px solid var(--line); color:var(--muted);
+        border-radius:8px; padding:5px 9px; font-size:12px; cursor:pointer}
+  .icon:hover{color:var(--text)}
+  .icon.del:hover{color:var(--danger); border-color:var(--danger)}
+
+  .tag{display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px;
+       background:#1b2029; color:var(--muted); border:1px solid var(--line)}
+  .st-brief{color:var(--muted)} .st-shoot{color:var(--teal)} .st-edit{color:var(--accent)}
+  .st-review{color:var(--warn)} .st-revisi{color:var(--danger)} .st-selesai{color:var(--ok)}
+
+  .drop{border:1.5px dashed #2e3641; border-radius:12px; padding:26px 16px;
+        text-align:center; color:var(--muted); font-size:14px; cursor:pointer}
+  .drop.hot{border-color:var(--accent); color:var(--text); background:#171427}
+  .bar{height:4px; background:var(--panel2); border-radius:999px; overflow:hidden; margin-top:10px}
+  .bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .15s}
+
+  .empty{color:var(--muted); font-size:13px; text-align:center; padding:22px 0}
+  .sechead{display:flex; align-items:center; gap:10px; margin:18px 0 10px}
+  .sechead h2{font-size:13px; text-transform:uppercase; letter-spacing:.07em;
+              color:var(--muted); margin:0; font-weight:600; flex:1}
+
+  .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(90px);
+         background:#1d222b; border:1px solid var(--line); color:var(--text);
+         padding:10px 18px; border-radius:999px; font-size:13px; transition:transform .22s; z-index:60}
+  .toast.on{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="mark"></div>
+    <h1>Annabil Personal Dashboard</h1>
+    <button class="ghost" id="logout">Keluar</button>
+  </header>
+
+  <nav>
+    <button class="on" data-tab="clip">Clipboard</button>
+    <button data-tab="file">File</button>
+    <button data-tab="asset">Aset</button>
+    <button data-tab="proj">Project</button>
+  </nav>
+
+  <!-- CLIPBOARD -->
+  <section class="panel on" id="p-clip">
+    <div class="card">
+      <textarea id="clipText" placeholder="Tempel teks, link Drive, prompt, caption… lalu simpan. Bisa dibuka dari device mana pun."></textarea>
+      <div class="row mt">
+        <input id="clipLabel" placeholder="Label (opsional)">
+        <button class="btn" id="clipSave" style="flex:none">Simpan</button>
+      </div>
+    </div>
+    <div class="sechead">
+      <h2>Tersimpan</h2>
+      <button class="icon del" id="clipClear">Hapus semua</button>
+    </div>
+    <div id="clipList"></div>
+  </section>
+
+  <!-- FILE -->
+  <section class="panel" id="p-file">
+    <div class="card">
+      <div class="drop" id="drop">
+        Ketuk untuk pilih file, atau seret ke sini<br>
+        <span style="font-size:12px">Dari iPad: Files / Foto → unggah → muncul langsung di Windows</span>
+      </div>
+      <input type="file" id="picker" multiple hidden>
+      <div class="bar" id="barWrap" style="display:none"><i id="bar"></i></div>
+      <div class="sub" id="upStatus" style="text-align:center; margin-top:8px"></div>
+    </div>
+    <div class="sechead"><h2>File</h2></div>
+    <div id="fileList"></div>
+  </section>
+
+  <!-- ASET -->
+  <section class="panel" id="p-asset">
+    <div class="card">
+      <div class="row">
+        <input id="aLabel" placeholder="Nama aset — mis. SFX Whoosh Pack">
+        <select id="aCat">
+          <option>SFX</option><option>Musik</option><option>Logo</option>
+          <option>Transisi</option><option>LUT</option><option>Font</option>
+          <option>Overlay</option><option>Stock</option><option>Template</option>
+          <option>Lainnya</option>
+        </select>
+      </div>
+      <input class="mt" id="aUrl" placeholder="https://… (Drive, Dropbox, situs aset)">
+      <div class="row mt">
+        <input id="aNote" placeholder="Catatan (opsional)">
+        <button class="btn" id="aSave" style="flex:none">Tambah</button>
+      </div>
+    </div>
+    <div class="sechead">
+      <h2>Pustaka</h2>
+      <input id="aSearch" placeholder="Cari…" style="max-width:150px; padding:7px 11px; font-size:13px">
+    </div>
+    <div id="assetList"></div>
+  </section>
+
+  <!-- PROJECT -->
+  <section class="panel" id="p-proj">
+    <div class="card">
+      <div class="row">
+        <input id="pName" placeholder="Nama project">
+        <input id="pClient" placeholder="Klien">
+      </div>
+      <div class="row mt">
+        <select id="pStatus">
+          <option value="brief">Brief</option><option value="shoot">Shoot</option>
+          <option value="edit">Edit</option><option value="review">Review</option>
+          <option value="revisi">Revisi</option><option value="selesai">Selesai</option>
+        </select>
+        <input id="pDue" type="date">
+        <button class="btn" id="pSave" style="flex:none">Tambah</button>
+      </div>
+      <input class="mt" id="pNote" placeholder="Catatan (opsional)">
+    </div>
+    <div class="sechead"><h2>Berjalan</h2></div>
+    <div id="projList"></div>
+    <div class="sechead"><h2>Selesai</h2></div>
+    <div id="projDone"></div>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $  = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g,
+  (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let toastTimer;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 1900);
+}
+
+async function api(path, options = {}){
+  const res = await fetch(path, {
+    headers: options.body ? { 'Content-Type': 'application/json' } : {},
+    ...options
+  });
+  if (res.status === 401){ location.href = '/login?next=' + encodeURIComponent(location.pathname); throw new Error('auth'); }
+  if (!res.ok) throw new Error('http ' + res.status);
+  return res.status === 204 ? null : res.json();
+}
+
+async function copyText(text){
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  }
+  toast('Disalin');
+}
+
+function fmtSize(bytes){
+  if (bytes == null) return '';
+  const u = ['B','KB','MB','GB'];
+  let i = 0, n = bytes;
+  while (n >= 1024 && i < u.length - 1){ n /= 1024; i++; }
+  return n.toFixed(n < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
+}
+function fmtDate(iso){
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('id-ID',
+    { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('nav button').forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll('nav button').forEach((x) => x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach((x) => x.classList.remove('on'));
+    b.classList.add('on');
+    $('#p-' + b.dataset.tab).classList.add('on');
+    localStorage.setItem('gf_tab', b.dataset.tab);
+  };
+});
+try {
+  const saved = localStorage.getItem('gf_tab');
+  if (saved) document.querySelector('nav button[data-tab="' + saved + '"]')?.click();
+} catch {}
+
+$('#logout').onclick = async () => {
+  await fetch('/api/session', { method: 'DELETE' });
+  location.href = '/login';
+};
+
+/* ---------- clipboard ---------- */
+let clips = [];
+async function loadClips(){ clips = await api('/api/clips'); renderClips(); }
+
+function renderClips(){
+  const box = $('#clipList');
+  if (!clips.length){ box.innerHTML = '<div class="empty">Belum ada titipan teks.</div>'; return; }
+  box.innerHTML = clips.map((c) => `
+    <div class="item">
+      <div class="top">
+        <div class="grow">
+          ${c.label ? '<div class="ttl">' + esc(c.label) + '</div>' : ''}
+          <div class="sub">${c.pinned ? '📌 ' : ''}${fmtDate(c.createdAt)}</div>
+        </div>
+        <div class="acts">
+          <button class="icon" data-copy="${c.id}">Salin</button>
+          <button class="icon" data-pin="${c.id}">${c.pinned ? 'Lepas' : 'Pin'}</button>
+          <button class="icon del" data-delclip="${c.id}">Hapus</button>
+        </div>
+      </div>
+      <pre class="clip" style="margin-top:9px">${esc(c.text)}</pre>
+    </div>`).join('');
+
+  box.querySelectorAll('[data-copy]').forEach((b) => {
+    b.onclick = () => copyText(clips.find((c) => c.id === b.dataset.copy).text);
+  });
+  box.querySelectorAll('[data-pin]').forEach((b) => {
+    b.onclick = async () => {
+      const c = clips.find((x) => x.id === b.dataset.pin);
+      await api('/api/clips', { method:'PUT', body: JSON.stringify({ id: c.id, pinned: !c.pinned }) });
+      loadClips();
+    };
+  });
+  box.querySelectorAll('[data-delclip]').forEach((b) => {
+    b.onclick = async () => {
+      await api('/api/clips?id=' + b.dataset.delclip, { method:'DELETE' });
+      loadClips();
+    };
+  });
+}
+
+$('#clipSave').onclick = async () => {
+  const text = $('#clipText').value.trim();
+  if (!text) return;
+  await api('/api/clips', {
+    method:'POST',
+    body: JSON.stringify({ text, label: $('#clipLabel').value.trim() })
+  });
+  $('#clipText').value = ''; $('#clipLabel').value = '';
+  toast('Tersimpan'); loadClips();
+};
+$('#clipClear').onclick = async () => {
+  if (!confirm('Hapus semua teks yang tidak di-pin?')) return;
+  await api('/api/clips?id=__all__', { method:'DELETE' });
+  loadClips();
+};
+
+/* ---------- files ---------- */
+async function loadFiles(){
+  const files = await api('/api/files');
+  const box = $('#fileList');
+  if (!files.length){ box.innerHTML = '<div class="empty">Belum ada file.</div>'; return; }
+  box.innerHTML = files.map((f) => `
+    <div class="item">
+      <div class="top">
+        <div class="grow">
+          <div class="ttl">${esc(f.name)}</div>
+          <div class="sub">${fmtSize(f.size)} · ${fmtDate(f.uploaded)}</div>
+        </div>
+        <div class="acts">
+          <button class="icon" data-link="${esc(f.key)}">Salin link</button>
+          <a class="icon" style="text-decoration:none" href="/api/file?key=${encodeURIComponent(f.key)}">Unduh</a>
+          <button class="icon del" data-delfile="${esc(f.key)}">Hapus</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  box.querySelectorAll('[data-link]').forEach((b) => {
+    b.onclick = () => copyText(location.origin + '/api/file?key=' + encodeURIComponent(b.dataset.link));
+  });
+  box.querySelectorAll('[data-delfile]').forEach((b) => {
+    b.onclick = async () => {
+      if (!confirm('Hapus file ini?')) return;
+      await api('/api/files?key=' + encodeURIComponent(b.dataset.delfile), { method:'DELETE' });
+      loadFiles();
+    };
+  });
+}
+
+function uploadOne(file){
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', '/api/files?name=' + encodeURIComponent(file.name));
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) $('#bar').style.width = (e.loaded / e.total * 100) + '%';
+    };
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(xhr.status));
+    xhr.onerror = () => reject(new Error('network'));
+    xhr.send(file);
+  });
+}
+
+async function handleFiles(list){
+  const files = Array.from(list);
+  if (!files.length) return;
+  $('#barWrap').style.display = 'block';
+  for (let i = 0; i < files.length; i++){
+    $('#upStatus').textContent = 'Mengunggah ' + files[i].name + ' (' + (i+1) + '/' + files.length + ')';
+    $('#bar').style.width = '0';
+    try { await uploadOne(files[i]); }
+    catch { $('#upStatus').textContent = 'Gagal: ' + files[i].name; await new Promise(r => setTimeout(r, 1600)); }
+  }
+  $('#barWrap').style.display = 'none';
+  $('#upStatus').textContent = '';
+  toast('Unggahan selesai');
+  loadFiles();
+}
+
+$('#drop').onclick = () => $('#picker').click();
+$('#picker').onchange = (e) => { handleFiles(e.target.files); e.target.value = ''; };
+['dragenter','dragover'].forEach((ev) =>
+  $('#drop').addEventListener(ev, (e) => { e.preventDefault(); $('#drop').classList.add('hot'); }));
+['dragleave','drop'].forEach((ev) =>
+  $('#drop').addEventListener(ev, (e) => { e.preventDefault(); $('#drop').classList.remove('hot'); }));
+$('#drop').addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+
+/* ---------- assets ---------- */
+let assets = [];
+async function loadAssets(){ assets = await api('/api/assets'); renderAssets(); }
+
+function renderAssets(){
+  const q = $('#aSearch').value.toLowerCase();
+  const rows = assets.filter((a) =>
+    !q || (a.label + ' ' + a.category + ' ' + (a.note||'')).toLowerCase().includes(q));
+  const box = $('#assetList');
+  if (!rows.length){ box.innerHTML = '<div class="empty">Belum ada aset.</div>'; return; }
+  box.innerHTML = rows.map((a) => `
+    <div class="item">
+      <div class="top">
+        <div class="grow">
+          <div class="ttl">${esc(a.label)} <span class="tag">${esc(a.category)}</span></div>
+          <div class="sub">${esc(a.url)}</div>
+          ${a.note ? '<div class="sub">' + esc(a.note) + '</div>' : ''}
+        </div>
+        <div class="acts">
+          <button class="icon" data-acopy="${a.id}">Salin</button>
+          <a class="icon" style="text-decoration:none" href="${esc(a.url)}" target="_blank" rel="noopener">Buka</a>
+          <button class="icon del" data-adel="${a.id}">Hapus</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  box.querySelectorAll('[data-acopy]').forEach((b) => {
+    b.onclick = () => copyText(assets.find((a) => a.id === b.dataset.acopy).url);
+  });
+  box.querySelectorAll('[data-adel]').forEach((b) => {
+    b.onclick = async () => {
+      await api('/api/assets?id=' + b.dataset.adel, { method:'DELETE' });
+      loadAssets();
+    };
+  });
+}
+$('#aSearch').oninput = renderAssets;
+$('#aSave').onclick = async () => {
+  const label = $('#aLabel').value.trim(), url = $('#aUrl').value.trim();
+  if (!label || !url) return toast('Nama dan link wajib diisi');
+  await api('/api/assets', {
+    method:'POST',
+    body: JSON.stringify({ label, url, category: $('#aCat').value, note: $('#aNote').value.trim() })
+  });
+  $('#aLabel').value = ''; $('#aUrl').value = ''; $('#aNote').value = '';
+  toast('Aset ditambahkan'); loadAssets();
+};
+
+/* ---------- projects ---------- */
+const STATUSES = ['brief','shoot','edit','review','revisi','selesai'];
+let projects = [];
+async function loadProjects(){ projects = await api('/api/projects'); renderProjects(); }
+
+function projCard(p){
+  return `
+    <div class="item">
+      <div class="top">
+        <div class="grow">
+          <div class="ttl">${esc(p.name)}</div>
+          <div class="sub">
+            ${p.client ? esc(p.client) + ' · ' : ''}
+            <span class="st-${esc(p.status)}">${esc(p.status)}</span>
+            ${p.due ? ' · tenggat ' + esc(p.due) : ''}
+          </div>
+          ${p.note ? '<div class="sub">' + esc(p.note) + '</div>' : ''}
+        </div>
+        <div class="acts">
+          <select data-pstat="${p.id}" style="width:auto; padding:5px 8px; font-size:12px">
+            ${STATUSES.map((s) => '<option value="' + s + '"' + (s === p.status ? ' selected' : '') + '>' + s + '</option>').join('')}
+          </select>
+          <button class="icon del" data-pdel="${p.id}">Hapus</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderProjects(){
+  const active = projects.filter((p) => p.status !== 'selesai');
+  const done   = projects.filter((p) => p.status === 'selesai');
+  $('#projList').innerHTML = active.length ? active.map(projCard).join('')
+    : '<div class="empty">Belum ada project berjalan.</div>';
+  $('#projDone').innerHTML = done.length ? done.map(projCard).join('')
+    : '<div class="empty">Belum ada yang selesai.</div>';
+
+  document.querySelectorAll('[data-pstat]').forEach((sel) => {
+    sel.onchange = async () => {
+      await api('/api/projects', { method:'PUT', body: JSON.stringify({ id: sel.dataset.pstat, status: sel.value }) });
+      loadProjects();
+    };
+  });
+  document.querySelectorAll('[data-pdel]').forEach((b) => {
+    b.onclick = async () => {
+      if (!confirm('Hapus project ini?')) return;
+      await api('/api/projects?id=' + b.dataset.pdel, { method:'DELETE' });
+      loadProjects();
+    };
+  });
+}
+
+$('#pSave').onclick = async () => {
+  const name = $('#pName').value.trim();
+  if (!name) return toast('Nama project wajib diisi');
+  await api('/api/projects', {
+    method:'POST',
+    body: JSON.stringify({
+      name, client: $('#pClient').value.trim(), status: $('#pStatus').value,
+      due: $('#pDue').value, note: $('#pNote').value.trim()
+    })
+  });
+  ['#pName','#pClient','#pDue','#pNote'].forEach((s) => $(s).value = '');
+  toast('Project ditambahkan'); loadProjects();
+};
+
+/* ---------- init ---------- */
+loadClips(); loadFiles(); loadAssets(); loadProjects();
+</script>
+</body>
+</html>
