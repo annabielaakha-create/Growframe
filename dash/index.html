@@ -2,507 +2,1159 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Annabil Personal Dashboard</title>
+<meta name="theme-color" content="#100D18">
+<title>GrowFrame — Personal Creative Workspace</title>
 <style>
-  :root{
-    --bg:#0b0d10; --panel:#14171c; --panel2:#0e1116; --line:#242a32;
-    --text:#e8ecf1; --muted:#8b95a3; --accent:#7c5cff; --teal:#3ad1c6;
-    --danger:#ff5f6d; --ok:#48c78e; --warn:#f7b955;
-    --radius:14px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0; background:var(--bg); color:var(--text)}
-  body{
-    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    font-size:15px; line-height:1.5; -webkit-text-size-adjust:100%;
-  }
-  .wrap{max-width:900px; margin:0 auto; padding:18px 16px 80px}
+:root{
+  --bg:#100D18; --bg2:#181323; --bg3:#1F1830;
+  --accent:#8B5CF6; --accent2:#B9A2FF;
+  --text:#F5F3FA; --muted:#A7A0B5;
+  --line:rgba(185,162,255,.13);
+  --line2:rgba(185,162,255,.22);
+  --ok:#4ADE80; --warn:#FBBF24; --danger:#FB7185; --info:#60A5FA;
+  --r:14px; --r2:18px;
+  --side:236px;
+  --glass:linear-gradient(160deg,rgba(185,162,255,.07),rgba(185,162,255,.02));
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(900px 500px at 12% -8%,rgba(139,92,246,.20),transparent 60%),
+    radial-gradient(700px 450px at 100% 0%,rgba(185,162,255,.10),transparent 55%);
+}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent2);text-decoration:none}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(185,162,255,.18);border-radius:9px}
 
-  header{display:flex; align-items:center; gap:12px; margin-bottom:20px}
-  .mark{width:32px; height:32px; border-radius:9px; flex:none;
-        background:linear-gradient(135deg,var(--accent),var(--teal))}
-  header h1{font-size:17px; margin:0; letter-spacing:-.01em; flex:1}
-  .ghost{background:none; border:1px solid var(--line); color:var(--muted);
-         padding:7px 12px; border-radius:9px; font-size:13px; cursor:pointer}
-  .ghost:hover{color:var(--text); border-color:#39414c}
+/* ---------- shell ---------- */
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
 
-  nav{display:flex; gap:6px; margin-bottom:20px; overflow-x:auto; -webkit-overflow-scrolling:touch}
-  nav button{
-    flex:none; padding:9px 15px; border-radius:999px; cursor:pointer; font-size:14px;
-    background:var(--panel); border:1px solid var(--line); color:var(--muted);
-  }
-  nav button.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.side{
+  position:fixed; inset:0 auto 0 0; width:var(--side); z-index:40;
+  display:flex; flex-direction:column; gap:4px; padding:18px 12px;
+  background:rgba(16,13,24,.86); backdrop-filter:blur(18px);
+  border-right:1px solid var(--line); transition:transform .22s ease;
+}
+.brand{display:flex;align-items:center;gap:9px;padding:4px 8px 18px}
+.brand .dot{width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(145deg,var(--accent),#5B8CFF);
+  box-shadow:0 0 18px -4px var(--accent)}
+.brand b{font-size:15.5px;letter-spacing:-.02em;font-weight:650}
+.navlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);opacity:.65;padding:12px 10px 5px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;
+  border:0;background:none;border-radius:10px;cursor:pointer;
+  color:var(--muted);font-size:14px;text-align:left;transition:.14s}
+.nav:hover{background:rgba(185,162,255,.06);color:var(--text)}
+.nav.on{background:linear-gradient(90deg,rgba(139,92,246,.22),rgba(139,92,246,.06));
+  color:var(--text);font-weight:550;box-shadow:inset 0 0 0 1px var(--line2)}
+.nav svg{width:16px;height:16px;flex:none;opacity:.9}
+.nav .ct{margin-left:auto;font-size:11px;color:var(--muted);
+  background:rgba(185,162,255,.10);padding:1px 7px;border-radius:99px}
+.side .foot{margin-top:auto;border-top:1px solid var(--line);padding-top:10px}
 
-  .panel{display:none}
-  .panel.on{display:block}
+.scrim{position:fixed;inset:0;background:rgba(8,6,13,.6);backdrop-filter:blur(2px);
+  z-index:35;opacity:0;pointer-events:none;transition:.2s}
+.scrim.on{opacity:1;pointer-events:auto}
 
-  .card{background:var(--panel); border:1px solid var(--line);
-        border-radius:var(--radius); padding:16px; margin-bottom:14px}
+main{flex:1;margin-left:var(--side);min-width:0;display:flex;flex-direction:column}
 
-  textarea,input,select{
-    width:100%; padding:11px 13px; border-radius:10px; font-size:15px; font-family:inherit;
-    background:var(--panel2); border:1px solid var(--line); color:var(--text);
-  }
-  textarea{min-height:92px; resize:vertical}
-  input:focus,textarea:focus,select:focus{outline:none; border-color:var(--accent)}
-  .row{display:flex; gap:8px; flex-wrap:wrap}
-  .row > *{flex:1; min-width:140px}
-  .mt{margin-top:9px}
+.top{
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
+  padding:13px 22px; background:rgba(16,13,24,.78); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.top h1{font-size:16px;margin:0;font-weight:600;letter-spacing:-.015em;white-space:nowrap}
+.burger{display:none;background:none;border:1px solid var(--line);border-radius:9px;
+  padding:6px 9px;cursor:pointer;color:var(--muted)}
+.searchbox{position:relative;flex:1;max-width:420px;margin-left:auto}
+.searchbox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--muted);pointer-events:none}
+.searchbox input{width:100%;padding:8px 12px 8px 32px;border-radius:10px;
+  background:rgba(185,162,255,.06);border:1px solid var(--line);font-size:13.5px}
+.searchbox input:focus{outline:none;border-color:var(--line2);background:rgba(185,162,255,.09)}
+.kbd{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10.5px;
+  color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.clock{font-size:12.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 
-  .btn{padding:10px 16px; border:0; border-radius:10px; cursor:pointer;
-       background:var(--accent); color:#fff; font-size:14px; font-weight:600; flex:none}
-  .btn:disabled{opacity:.5; cursor:default}
-  .btn.sec{background:var(--panel2); border:1px solid var(--line); color:var(--text); font-weight:500}
+.page{padding:22px;max-width:1320px;width:100%}
+.phead{margin:0 0 18px}
+.phead h2{font-size:21px;margin:0 0 3px;letter-spacing:-.02em;font-weight:650}
+.phead p{margin:0;color:var(--muted);font-size:13.5px}
 
-  .item{background:var(--panel); border:1px solid var(--line);
-        border-radius:12px; padding:13px 14px; margin-bottom:9px}
-  .item .top{display:flex; align-items:flex-start; gap:10px}
-  .item .top .grow{flex:1; min-width:0}
-  .ttl{font-weight:600; font-size:14px; word-break:break-word}
-  .sub{font-size:12px; color:var(--muted); margin-top:3px; word-break:break-all}
-  pre.clip{
-    margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
-    white-space:pre-wrap; word-break:break-word; max-height:140px; overflow:auto; color:var(--text);
-  }
-  .acts{display:flex; gap:6px; flex:none}
-  .icon{background:none; border:1px solid var(--line); color:var(--muted);
-        border-radius:8px; padding:5px 9px; font-size:12px; cursor:pointer}
-  .icon:hover{color:var(--text)}
-  .icon.del:hover{color:var(--danger); border-color:var(--danger)}
+/* ---------- atoms ---------- */
+.card{background:var(--glass);border:1px solid var(--line);border-radius:var(--r2);
+  padding:17px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.grid{display:grid;gap:13px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.spread{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.mt{margin-top:11px}
+.muted{color:var(--muted)}
+.sm{font-size:12.5px}
+.xs{font-size:11.5px}
+.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  .tag{display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px;
-       background:#1b2029; color:var(--muted); border:1px solid var(--line)}
-  .st-brief{color:var(--muted)} .st-shoot{color:var(--teal)} .st-edit{color:var(--accent)}
-  .st-review{color:var(--warn)} .st-revisi{color:var(--danger)} .st-selesai{color:var(--ok)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:0;
+  border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:580;
+  background:linear-gradient(145deg,var(--accent),#7048E8);color:#fff;
+  box-shadow:0 6px 18px -8px var(--accent);transition:.15s;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:rgba(185,162,255,.07);color:var(--text);
+  border:1px solid var(--line);box-shadow:none;font-weight:500}
+.btn.ghost:hover{background:rgba(185,162,255,.12)}
+.btn.sm{padding:5px 11px;font-size:12.5px}
+.btn.danger{background:rgba(251,113,133,.14);color:var(--danger);
+  border:1px solid rgba(251,113,133,.3);box-shadow:none}
+.ico{background:none;border:1px solid var(--line);border-radius:8px;padding:4px 9px;
+  cursor:pointer;color:var(--muted);font-size:12px;transition:.14s;white-space:nowrap}
+.ico:hover{color:var(--text);border-color:var(--line2);background:rgba(185,162,255,.07)}
+.ico.red:hover{color:var(--danger);border-color:rgba(251,113,133,.4)}
 
-  .drop{border:1.5px dashed #2e3641; border-radius:12px; padding:26px 16px;
-        text-align:center; color:var(--muted); font-size:14px; cursor:pointer}
-  .drop.hot{border-color:var(--accent); color:var(--text); background:#171427}
-  .bar{height:4px; background:var(--panel2); border-radius:999px; overflow:hidden; margin-top:10px}
-  .bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .15s}
+label.f{display:block;font-size:11.5px;color:var(--muted);margin:0 0 5px;
+  text-transform:uppercase;letter-spacing:.06em}
+.in{width:100%;padding:9px 12px;border-radius:10px;background:rgba(10,8,16,.6);
+  border:1px solid var(--line);font-size:14px}
+.in:focus{outline:none;border-color:var(--accent);background:rgba(10,8,16,.85)}
+textarea.in{min-height:92px;resize:vertical;line-height:1.6}
+select.in{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
+  linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:32px}
 
-  .empty{color:var(--muted); font-size:13px; text-align:center; padding:22px 0}
-  .sechead{display:flex; align-items:center; gap:10px; margin:18px 0 10px}
-  .sechead h2{font-size:13px; text-transform:uppercase; letter-spacing:.07em;
-              color:var(--muted); margin:0; font-weight:600; flex:1}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2.5px 9px;
+  border-radius:99px;background:rgba(185,162,255,.09);border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip.on{background:rgba(139,92,246,.26);color:var(--text);border-color:var(--line2)}
+.tag{font-size:10.5px;padding:1.5px 7px;border-radius:99px;
+  background:rgba(185,162,255,.09);color:var(--muted);border:1px solid var(--line)}
+.dotbadge{width:6px;height:6px;border-radius:99px;flex:none}
 
-  .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(90px);
-         background:#1d222b; border:1px solid var(--line); color:var(--text);
-         padding:10px 18px; border-radius:999px; font-size:13px; transition:transform .22s; z-index:60}
-  .toast.on{transform:translateX(-50%) translateY(0)}
+.st{font-size:11px;padding:2px 9px;border-radius:99px;font-weight:550;white-space:nowrap}
+.st-planning{background:rgba(167,160,181,.15);color:var(--muted)}
+.st-progress{background:rgba(96,165,250,.16);color:var(--info)}
+.st-review{background:rgba(251,191,36,.16);color:var(--warn)}
+.st-completed{background:rgba(74,222,128,.15);color:var(--ok)}
+.pr-high{color:var(--danger)} .pr-med{color:var(--warn)} .pr-low{color:var(--muted)}
+
+.bar{height:5px;border-radius:99px;background:rgba(185,162,255,.12);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+.item{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border-radius:12px;
+  border:1px solid var(--line);background:rgba(185,162,255,.035);transition:.14s}
+.item:hover{border-color:var(--line2);background:rgba(185,162,255,.06)}
+.item + .item{margin-top:8px}
+.item .grow{flex:1;min-width:0}
+.ttl{font-weight:570;font-size:14px;word-break:break-word}
+
+.empty{text-align:center;padding:38px 16px;color:var(--muted);font-size:13.5px}
+.empty b{display:block;color:var(--text);font-size:14.5px;margin-bottom:4px;font-weight:570}
+
+.hero{position:relative;overflow:hidden;border-radius:var(--r2);padding:24px;
+  border:1px solid var(--line2);
+  background:linear-gradient(135deg,rgba(139,92,246,.42),rgba(91,60,190,.22) 55%,rgba(24,19,35,.6))}
+.hero::after{content:"";position:absolute;right:-60px;top:-80px;width:280px;height:280px;
+  border-radius:50%;background:radial-gradient(circle,rgba(185,162,255,.4),transparent 65%)}
+.hero h3{margin:0 0 7px;font-size:23px;letter-spacing:-.03em}
+.hero p{margin:0 0 15px;color:#E6E0F7;font-size:13.5px;max-width:420px}
+
+/* ---------- kanban / calendar ---------- */
+.kan{display:grid;grid-template-columns:repeat(4,minmax(215px,1fr));gap:12px;
+  overflow-x:auto;padding-bottom:6px}
+.kcol{background:rgba(185,162,255,.04);border:1px solid var(--line);
+  border-radius:var(--r);padding:11px;min-height:150px}
+.kcol h4{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);display:flex;justify-content:space-between}
+.kcard{background:rgba(24,19,35,.9);border:1px solid var(--line);border-radius:11px;
+  padding:10px 11px;margin-bottom:8px;cursor:pointer;transition:.14s}
+.kcard:hover{border-color:var(--line2);transform:translateY(-1px)}
+
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .dow{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);text-align:center;padding:4px 0}
+.cday{min-height:72px;border:1px solid var(--line);border-radius:10px;padding:5px 6px;
+  background:rgba(185,162,255,.03);font-size:11.5px}
+.cday.out{opacity:.32}
+.cday.today{border-color:var(--accent);background:rgba(139,92,246,.12)}
+.cday .n{color:var(--muted);font-size:11px}
+.cev{margin-top:3px;font-size:10.5px;padding:1.5px 5px;border-radius:5px;
+  background:rgba(139,92,246,.26);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- modal / toast ---------- */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;
+  justify-content:center;padding:18px;background:rgba(8,6,13,.66);backdrop-filter:blur(6px)}
+.modal.on{display:flex}
+.sheet{width:100%;max-width:540px;max-height:88vh;overflow:auto;border-radius:20px;
+  background:linear-gradient(170deg,#1D1730,#15111F);border:1px solid var(--line2);
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.8);padding:20px}
+.sheet h3{margin:0 0 3px;font-size:17px;letter-spacing:-.02em}
+.sheet .sub{color:var(--muted);font-size:12.5px;margin-bottom:16px}
+.fgrid{display:grid;gap:11px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.fgrid .full{grid-column:1/-1}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,90px);z-index:80;
+  background:#221B36;border:1px solid var(--line2);padding:10px 18px;border-radius:99px;
+  font-size:13px;transition:transform .24s;box-shadow:var(--shadow)}
+.toast.on{transform:translate(-50%,0)}
+
+.qa{position:fixed;right:20px;bottom:20px;z-index:50;display:none;
+  width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;font-size:24px;
+  background:linear-gradient(145deg,var(--accent),#7048E8);color:#fff;
+  box-shadow:0 12px 30px -8px var(--accent)}
+
+/* ---------- responsive ---------- */
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){
+  .side{transform:translateX(-100%)} .side.open{transform:none}
+  main{margin-left:0} .burger{display:block} .qa{display:block}
+  .top{padding:11px 14px} .page{padding:15px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .clock{display:none}
+  .top .btn{display:none}
+  .cday{min-height:58px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <div class="mark"></div>
-    <h1>Annabil Personal Dashboard</h1>
-    <button class="ghost" id="logout">Keluar</button>
-  </header>
+<div class="scrim" id="scrim"></div>
 
-  <nav>
-    <button class="on" data-tab="clip">Clipboard</button>
-    <button data-tab="file">File</button>
-    <button data-tab="asset">Aset</button>
-    <button data-tab="proj">Project</button>
-  </nav>
-
-  <!-- CLIPBOARD -->
-  <section class="panel on" id="p-clip">
-    <div class="card">
-      <textarea id="clipText" placeholder="Tempel teks, link Drive, prompt, caption… lalu simpan. Bisa dibuka dari device mana pun."></textarea>
-      <div class="row mt">
-        <input id="clipLabel" placeholder="Label (opsional)">
-        <button class="btn" id="clipSave" style="flex:none">Simpan</button>
-      </div>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><span class="dot"></span><b>growframe.</b></div>
+    <div id="navWrap"></div>
+    <div class="foot">
+      <button class="nav" data-go="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.67 1.09 1.31 1.1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button class="nav" id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Logout
+      </button>
     </div>
-    <div class="sechead">
-      <h2>Tersimpan</h2>
-      <button class="icon del" id="clipClear">Hapus semua</button>
-    </div>
-    <div id="clipList"></div>
-  </section>
+  </aside>
 
-  <!-- FILE -->
-  <section class="panel" id="p-file">
-    <div class="card">
-      <div class="drop" id="drop">
-        Ketuk untuk pilih file, atau seret ke sini<br>
-        <span style="font-size:12px">Dari iPad: Files / Foto → unggah → muncul langsung di Windows</span>
+  <main>
+    <header class="top">
+      <button class="burger" id="burger">☰</button>
+      <h1 id="ptitle">Overview</h1>
+      <div class="searchbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input id="gsearch" placeholder="Cari project, notes, prompt, aset…" autocomplete="off">
+        <span class="kbd">/</span>
       </div>
-      <input type="file" id="picker" multiple hidden>
-      <div class="bar" id="barWrap" style="display:none"><i id="bar"></i></div>
-      <div class="sub" id="upStatus" style="text-align:center; margin-top:8px"></div>
-    </div>
-    <div class="sechead"><h2>File</h2></div>
-    <div id="fileList"></div>
-  </section>
-
-  <!-- ASET -->
-  <section class="panel" id="p-asset">
-    <div class="card">
-      <div class="row">
-        <input id="aLabel" placeholder="Nama aset — mis. SFX Whoosh Pack">
-        <select id="aCat">
-          <option>SFX</option><option>Musik</option><option>Logo</option>
-          <option>Transisi</option><option>LUT</option><option>Font</option>
-          <option>Overlay</option><option>Stock</option><option>Template</option>
-          <option>Lainnya</option>
-        </select>
-      </div>
-      <input class="mt" id="aUrl" placeholder="https://… (Drive, Dropbox, situs aset)">
-      <div class="row mt">
-        <input id="aNote" placeholder="Catatan (opsional)">
-        <button class="btn" id="aSave" style="flex:none">Tambah</button>
-      </div>
-    </div>
-    <div class="sechead">
-      <h2>Pustaka</h2>
-      <input id="aSearch" placeholder="Cari…" style="max-width:150px; padding:7px 11px; font-size:13px">
-    </div>
-    <div id="assetList"></div>
-  </section>
-
-  <!-- PROJECT -->
-  <section class="panel" id="p-proj">
-    <div class="card">
-      <div class="row">
-        <input id="pName" placeholder="Nama project">
-        <input id="pClient" placeholder="Klien">
-      </div>
-      <div class="row mt">
-        <select id="pStatus">
-          <option value="brief">Brief</option><option value="shoot">Shoot</option>
-          <option value="edit">Edit</option><option value="review">Review</option>
-          <option value="revisi">Revisi</option><option value="selesai">Selesai</option>
-        </select>
-        <input id="pDue" type="date">
-        <button class="btn" id="pSave" style="flex:none">Tambah</button>
-      </div>
-      <input class="mt" id="pNote" placeholder="Catatan (opsional)">
-    </div>
-    <div class="sechead"><h2>Berjalan</h2></div>
-    <div id="projList"></div>
-    <div class="sechead"><h2>Selesai</h2></div>
-    <div id="projDone"></div>
-  </section>
-
+      <button class="btn" id="quickAdd">+ Quick Add</button>
+      <span class="clock" id="clock"></span>
+    </header>
+    <div class="page" id="view"></div>
+  </main>
 </div>
+
+<button class="qa" id="qaFab">+</button>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const $  = (s) => document.querySelector(s);
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g,
-  (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ============ util ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+let tTimer;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');
+  clearTimeout(tTimer);tTimer=setTimeout(()=>t.classList.remove('on'),1900)}
+function rupiah(n){const v=Number(n)||0;
+  return 'Rp '+v.toLocaleString('id-ID',{maximumFractionDigits:0})}
+function dateID(s){if(!s)return '—';
+  return new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}
+function daysTo(s){if(!s)return null;
+  return Math.ceil((new Date(s+'T00:00:00')-new Date(today()+'T00:00:00'))/864e5)}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t)}catch{
+    const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;
+    document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
+  toast('Disalin')}
 
-let toastTimer;
-function toast(msg){
-  const t = $('#toast');
-  t.textContent = msg; t.classList.add('on');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('on'), 1900);
+/* ============ data ============ */
+const COLS=['projects','tasks','notes','clips','prompts','assets','finance'];
+const DB={projects:[],tasks:[],notes:[],clips:[],prompts:[],assets:[],finance:[],settings:{}};
+const saveTimers={};
+
+async function api(path,opt={}){
+  const r=await fetch(path,{headers:opt.body?{'Content-Type':'application/json'}:{},...opt});
+  if(r.status===401){location.href='/login?next='+encodeURIComponent(location.pathname);throw 0}
+  if(!r.ok)throw new Error(path+' '+r.status);
+  return r.json();
 }
-
-async function api(path, options = {}){
-  const res = await fetch(path, {
-    headers: options.body ? { 'Content-Type': 'application/json' } : {},
-    ...options
-  });
-  if (res.status === 401){ location.href = '/login?next=' + encodeURIComponent(location.pathname); throw new Error('auth'); }
-  if (!res.ok) throw new Error('http ' + res.status);
-  return res.status === 204 ? null : res.json();
+async function loadAll(){
+  const res=await Promise.all([...COLS,'settings'].map(c=>api('/api/data/'+c).catch(()=>null)));
+  [...COLS,'settings'].forEach((c,i)=>{if(res[i]!=null)DB[c]=res[i]});
 }
-
-async function copyText(text){
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); ta.remove();
-  }
-  toast('Disalin');
+function save(col){
+  clearTimeout(saveTimers[col]);
+  saveTimers[col]=setTimeout(async()=>{
+    try{await api('/api/data/'+col,{method:'PUT',body:JSON.stringify(DB[col])})}
+    catch{toast('Gagal menyimpan '+col)}
+  },320);
 }
+function commit(col,msg){ save(col); render(); if(msg)toast(msg) }
 
-function fmtSize(bytes){
-  if (bytes == null) return '';
-  const u = ['B','KB','MB','GB'];
-  let i = 0, n = bytes;
-  while (n >= 1024 && i < u.length - 1){ n /= 1024; i++; }
-  return n.toFixed(n < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
-}
-function fmtDate(iso){
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('id-ID',
-    { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-}
-
-/* ---------- tabs ---------- */
-document.querySelectorAll('nav button').forEach((b) => {
-  b.onclick = () => {
-    document.querySelectorAll('nav button').forEach((x) => x.classList.remove('on'));
-    document.querySelectorAll('.panel').forEach((x) => x.classList.remove('on'));
-    b.classList.add('on');
-    $('#p-' + b.dataset.tab).classList.add('on');
-    localStorage.setItem('gf_tab', b.dataset.tab);
-  };
-});
-try {
-  const saved = localStorage.getItem('gf_tab');
-  if (saved) document.querySelector('nav button[data-tab="' + saved + '"]')?.click();
-} catch {}
-
-$('#logout').onclick = async () => {
-  await fetch('/api/session', { method: 'DELETE' });
-  location.href = '/login';
+/* ============ nav ============ */
+const I={
+  overview:'<path d="M3 3h7v7H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 14h7v7H3z"/>',
+  projects:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  tasks:'<path d="M9 11l2 2 4-4M4 5h16v16H4z"/>',
+  notes:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5"/>',
+  clips:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/>',
+  prompts:'<path d="m12 3 2.2 5.4L20 10l-5.8 1.6L12 17l-2.2-5.4L4 10l5.8-1.6zM18 16l.9 2.1L21 19l-2.1.9L18 22l-.9-2.1L15 19l2.1-.9z"/>',
+  assets:'<path d="M4 5h16v14H4zM4 15l4.5-4.5 3 3L15 10l5 5"/><circle cx="9" cy="9" r="1.4"/>',
+  finance:'<path d="M12 2v20M17 6.5C17 4.6 14.8 3.5 12 3.5S7 4.6 7 6.5s2 2.6 5 3.3 5 1.6 5 3.7-2.2 3-5 3-5-1.1-5-3"/>',
+  transfer:'<path d="M12 16V4M8 8l4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>'
 };
+const NAV=[
+  {id:'overview',label:'Overview'},
+  {id:'projects',label:'Projects',count:()=>DB.projects.filter(p=>!p.archived).length},
+  {id:'tasks',label:'Tasks & Calendar',count:()=>DB.tasks.filter(t=>t.status!=='done').length},
+  {id:'notes',label:'Briefs & Notes',count:()=>DB.notes.length},
+  {id:'clips',label:'Clipboard Vault',count:()=>DB.clips.length},
+  {id:'prompts',label:'AI Prompt Library',count:()=>DB.prompts.length},
+  {id:'assets',label:'Asset Library',count:()=>DB.assets.length},
+  {id:'finance',label:'Finance'},
+  {id:'transfer',label:'File Transfer'}
+];
+const TITLES={overview:'Overview',projects:'Project Hub',tasks:'Tasks & Calendar',
+  notes:'Briefs & Notes',clips:'Clipboard Vault',prompts:'AI Prompt Library',
+  assets:'Asset Library',finance:'Finance Tracker',transfer:'File Transfer',
+  settings:'Settings',search:'Hasil pencarian'};
 
-/* ---------- clipboard ---------- */
-let clips = [];
-async function loadClips(){ clips = await api('/api/clips'); renderClips(); }
-
-function renderClips(){
-  const box = $('#clipList');
-  if (!clips.length){ box.innerHTML = '<div class="empty">Belum ada titipan teks.</div>'; return; }
-  box.innerHTML = clips.map((c) => `
-    <div class="item">
-      <div class="top">
-        <div class="grow">
-          ${c.label ? '<div class="ttl">' + esc(c.label) + '</div>' : ''}
-          <div class="sub">${c.pinned ? '📌 ' : ''}${fmtDate(c.createdAt)}</div>
-        </div>
-        <div class="acts">
-          <button class="icon" data-copy="${c.id}">Salin</button>
-          <button class="icon" data-pin="${c.id}">${c.pinned ? 'Lepas' : 'Pin'}</button>
-          <button class="icon del" data-delclip="${c.id}">Hapus</button>
-        </div>
-      </div>
-      <pre class="clip" style="margin-top:9px">${esc(c.text)}</pre>
-    </div>`).join('');
-
-  box.querySelectorAll('[data-copy]').forEach((b) => {
-    b.onclick = () => copyText(clips.find((c) => c.id === b.dataset.copy).text);
-  });
-  box.querySelectorAll('[data-pin]').forEach((b) => {
-    b.onclick = async () => {
-      const c = clips.find((x) => x.id === b.dataset.pin);
-      await api('/api/clips', { method:'PUT', body: JSON.stringify({ id: c.id, pinned: !c.pinned }) });
-      loadClips();
-    };
-  });
-  box.querySelectorAll('[data-delclip]').forEach((b) => {
-    b.onclick = async () => {
-      await api('/api/clips?id=' + b.dataset.delclip, { method:'DELETE' });
-      loadClips();
-    };
-  });
+function renderNav(){
+  $('#navWrap').innerHTML='<div class="navlbl">Workspace</div>'+NAV.map(n=>{
+    const c=n.count?n.count():0;
+    return `<button class="nav${route===n.id?' on':''}" data-go="${n.id}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">${I[n.id]}</svg>
+      ${n.label}${c?`<span class="ct">${c}</span>`:''}</button>`}).join('');
 }
 
-$('#clipSave').onclick = async () => {
-  const text = $('#clipText').value.trim();
-  if (!text) return;
-  await api('/api/clips', {
-    method:'POST',
-    body: JSON.stringify({ text, label: $('#clipLabel').value.trim() })
-  });
-  $('#clipText').value = ''; $('#clipLabel').value = '';
-  toast('Tersimpan'); loadClips();
-};
-$('#clipClear').onclick = async () => {
-  if (!confirm('Hapus semua teks yang tidak di-pin?')) return;
-  await api('/api/clips?id=__all__', { method:'DELETE' });
-  loadClips();
-};
+/* ============ router ============ */
+let route='overview', searchQ='';
+function go(r){ route=r; searchQ=''; location.hash='#/'+r; render(); closeSide() }
+function closeSide(){ $('#side').classList.remove('open'); $('#scrim').classList.remove('on') }
 
-/* ---------- files ---------- */
-async function loadFiles(){
-  const files = await api('/api/files');
-  const box = $('#fileList');
-  if (!files.length){ box.innerHTML = '<div class="empty">Belum ada file.</div>'; return; }
-  box.innerHTML = files.map((f) => `
-    <div class="item">
-      <div class="top">
-        <div class="grow">
-          <div class="ttl">${esc(f.name)}</div>
-          <div class="sub">${fmtSize(f.size)} · ${fmtDate(f.uploaded)}</div>
-        </div>
-        <div class="acts">
-          <button class="icon" data-link="${esc(f.key)}">Salin link</button>
-          <a class="icon" style="text-decoration:none" href="/api/file?key=${encodeURIComponent(f.key)}">Unduh</a>
-          <button class="icon del" data-delfile="${esc(f.key)}">Hapus</button>
-        </div>
-      </div>
-    </div>`).join('');
-
-  box.querySelectorAll('[data-link]').forEach((b) => {
-    b.onclick = () => copyText(location.origin + '/api/file?key=' + encodeURIComponent(b.dataset.link));
-  });
-  box.querySelectorAll('[data-delfile]').forEach((b) => {
-    b.onclick = async () => {
-      if (!confirm('Hapus file ini?')) return;
-      await api('/api/files?key=' + encodeURIComponent(b.dataset.delfile), { method:'DELETE' });
-      loadFiles();
-    };
-  });
+function render(){
+  renderNav();
+  $('#ptitle').textContent=TITLES[route]||'Dashboard';
+  const v=$('#view');
+  v.innerHTML=({overview:vOverview,projects:vProjects,tasks:vTasks,notes:vNotes,
+    clips:vClips,prompts:vPrompts,assets:vAssets,finance:vFinance,
+    transfer:vTransfer,settings:vSettings,search:vSearch}[route]||vOverview)();
+  v.scrollTop=0;
+  if(route==='transfer')loadFiles();
 }
 
-function uploadOne(file){
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', '/api/files?name=' + encodeURIComponent(file.name));
-    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) $('#bar').style.width = (e.loaded / e.total * 100) + '%';
-    };
-    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(xhr.status));
-    xhr.onerror = () => reject(new Error('network'));
-    xhr.send(file);
-  });
-}
+/* ============ OVERVIEW ============ */
+function vOverview(){
+  const act=DB.projects.filter(p=>!p.archived&&p.status!=='completed');
+  const due=DB.projects.filter(p=>!p.archived&&p.deadline&&daysTo(p.deadline)!=null
+    &&daysTo(p.deadline)>=0&&daysTo(p.deadline)<=7).length;
+  const todayTasks=DB.tasks.filter(t=>t.status!=='done'&&t.due&&t.due<=today());
+  const pinned=[...DB.clips.filter(c=>c.pinned).map(c=>({t:c.label||c.text.slice(0,50),s:'Clipboard',go:'clips'})),
+    ...DB.prompts.filter(p=>p.favorite).map(p=>({t:p.title,s:'Prompt',go:'prompts'}))].slice(0,6);
+  const recent=[...DB.projects].filter(p=>!p.archived)
+    .sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||'')).slice(0,4);
+  const hour=new Date().getHours();
+  const greet=hour<11?'Selamat pagi':hour<15?'Selamat siang':hour<19?'Selamat sore':'Selamat malam';
+  const name=DB.settings.name||'Annabil';
 
-async function handleFiles(list){
-  const files = Array.from(list);
-  if (!files.length) return;
-  $('#barWrap').style.display = 'block';
-  for (let i = 0; i < files.length; i++){
-    $('#upStatus').textContent = 'Mengunggah ' + files[i].name + ' (' + (i+1) + '/' + files.length + ')';
-    $('#bar').style.width = '0';
-    try { await uploadOne(files[i]); }
-    catch { $('#upStatus').textContent = 'Gagal: ' + files[i].name; await new Promise(r => setTimeout(r, 1600)); }
-  }
-  $('#barWrap').style.display = 'none';
-  $('#upStatus').textContent = '';
-  toast('Unggahan selesai');
-  loadFiles();
-}
-
-$('#drop').onclick = () => $('#picker').click();
-$('#picker').onchange = (e) => { handleFiles(e.target.files); e.target.value = ''; };
-['dragenter','dragover'].forEach((ev) =>
-  $('#drop').addEventListener(ev, (e) => { e.preventDefault(); $('#drop').classList.add('hot'); }));
-['dragleave','drop'].forEach((ev) =>
-  $('#drop').addEventListener(ev, (e) => { e.preventDefault(); $('#drop').classList.remove('hot'); }));
-$('#drop').addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
-
-/* ---------- assets ---------- */
-let assets = [];
-async function loadAssets(){ assets = await api('/api/assets'); renderAssets(); }
-
-function renderAssets(){
-  const q = $('#aSearch').value.toLowerCase();
-  const rows = assets.filter((a) =>
-    !q || (a.label + ' ' + a.category + ' ' + (a.note||'')).toLowerCase().includes(q));
-  const box = $('#assetList');
-  if (!rows.length){ box.innerHTML = '<div class="empty">Belum ada aset.</div>'; return; }
-  box.innerHTML = rows.map((a) => `
-    <div class="item">
-      <div class="top">
-        <div class="grow">
-          <div class="ttl">${esc(a.label)} <span class="tag">${esc(a.category)}</span></div>
-          <div class="sub">${esc(a.url)}</div>
-          ${a.note ? '<div class="sub">' + esc(a.note) + '</div>' : ''}
-        </div>
-        <div class="acts">
-          <button class="icon" data-acopy="${a.id}">Salin</button>
-          <a class="icon" style="text-decoration:none" href="${esc(a.url)}" target="_blank" rel="noopener">Buka</a>
-          <button class="icon del" data-adel="${a.id}">Hapus</button>
-        </div>
-      </div>
-    </div>`).join('');
-
-  box.querySelectorAll('[data-acopy]').forEach((b) => {
-    b.onclick = () => copyText(assets.find((a) => a.id === b.dataset.acopy).url);
-  });
-  box.querySelectorAll('[data-adel]').forEach((b) => {
-    b.onclick = async () => {
-      await api('/api/assets?id=' + b.dataset.adel, { method:'DELETE' });
-      loadAssets();
-    };
-  });
-}
-$('#aSearch').oninput = renderAssets;
-$('#aSave').onclick = async () => {
-  const label = $('#aLabel').value.trim(), url = $('#aUrl').value.trim();
-  if (!label || !url) return toast('Nama dan link wajib diisi');
-  await api('/api/assets', {
-    method:'POST',
-    body: JSON.stringify({ label, url, category: $('#aCat').value, note: $('#aNote').value.trim() })
-  });
-  $('#aLabel').value = ''; $('#aUrl').value = ''; $('#aNote').value = '';
-  toast('Aset ditambahkan'); loadAssets();
-};
-
-/* ---------- projects ---------- */
-const STATUSES = ['brief','shoot','edit','review','revisi','selesai'];
-let projects = [];
-async function loadProjects(){ projects = await api('/api/projects'); renderProjects(); }
-
-function projCard(p){
   return `
-    <div class="item">
-      <div class="top">
-        <div class="grow">
-          <div class="ttl">${esc(p.name)}</div>
-          <div class="sub">
-            ${p.client ? esc(p.client) + ' · ' : ''}
-            <span class="st-${esc(p.status)}">${esc(p.status)}</span>
-            ${p.due ? ' · tenggat ' + esc(p.due) : ''}
-          </div>
-          ${p.note ? '<div class="sub">' + esc(p.note) + '</div>' : ''}
-        </div>
-        <div class="acts">
-          <select data-pstat="${p.id}" style="width:auto; padding:5px 8px; font-size:12px">
-            ${STATUSES.map((s) => '<option value="' + s + '"' + (s === p.status ? ' selected' : '') + '>' + s + '</option>').join('')}
-          </select>
-          <button class="icon del" data-pdel="${p.id}">Hapus</button>
-        </div>
+  <div class="phead"><h2>${greet}, ${esc(name)}</h2>
+    <p>Semua project, ide, dan aset kamu dalam satu tempat.</p></div>
+
+  <div class="grid g4">
+    ${stat('Active Projects',act.length,act.filter(p=>p.status==='progress').length+' sedang berjalan')}
+    ${stat('Deadline 7 Hari',due,'project mendekati tenggat')}
+    ${stat('Task Hari Ini',todayTasks.length,'termasuk yang lewat tenggat')}
+    ${stat('Total Aset',DB.assets.length+DB.prompts.length,'aset & prompt tersimpan')}
+  </div>
+
+  <div class="grid g2 mt" style="grid-template-columns:1.25fr 1fr">
+    <div class="hero">
+      <h3>Create without limits.</h3>
+      <p>Simpan brief, prompt, aset, dan progres produksi tanpa berpindah aplikasi.</p>
+      <div class="row">
+        <button class="btn ghost" data-go="projects">Buka Projects</button>
+        <button class="btn" data-qa="project">+ Project Baru</button>
       </div>
-    </div>`;
+    </div>
+    <div class="card">
+      <div class="spread" style="margin-bottom:12px">
+        <b style="font-size:14px">Quick Access</b><span class="xs muted">1 klik</span></div>
+      <div class="grid g2" style="gap:9px">
+        ${qa('Asset Library','SFX, LUT, font','assets')}
+        ${qa('Prompt Library','Image & video','prompts')}
+        ${qa('Clipboard','Teks lintas device','clips')}
+        ${qa('File Transfer','iPad ⇄ PC','transfer')}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <div class="spread" style="margin-bottom:12px">
+        <b style="font-size:14px">Recent Projects</b>
+        <button class="ico" data-go="projects">Lihat semua</button></div>
+      ${recent.length?recent.map(p=>{
+        const prog=progressOf(p);
+        return `<div class="item" data-open-proj="${p.id}" style="cursor:pointer">
+          <div class="grow">
+            <div class="spread"><span class="ttl trunc">${esc(p.name)}</span>
+              <span class="st st-${p.status||'planning'}">${stLabel(p.status)}</span></div>
+            <div class="sm muted" style="margin:3px 0 7px">
+              ${esc(p.client||'Tanpa klien')} · ${p.deadline?dateID(p.deadline):'tanpa deadline'}</div>
+            <div class="bar"><i style="width:${prog}%"></i></div>
+          </div></div>`}).join(''):empty('Belum ada project','Mulai dari Quick Add.')}
+    </div>
+
+    <div class="card">
+      <div class="spread" style="margin-bottom:12px">
+        <b style="font-size:14px">Task Hari Ini</b>
+        <button class="ico" data-go="tasks">Semua task</button></div>
+      ${todayTasks.length?todayTasks.slice(0,6).map(t=>`
+        <div class="item">
+          <input type="checkbox" data-done="${t.id}" style="margin-top:3px">
+          <div class="grow"><div class="ttl trunc">${esc(t.title)}</div>
+            <div class="xs muted">${projName(t.projectId)} · ${t.due?dateID(t.due):'—'}
+              · <span class="pr-${t.priority||'low'}">${t.priority||'low'}</span></div></div>
+        </div>`).join(''):empty('Tidak ada task jatuh tempo','Hari ini bersih.')}
+      ${pinned.length?`<div class="navlbl" style="padding-left:0">Pinned</div>
+        <div class="row">${pinned.map(p=>`<span class="chip" data-go="${p.go}">${esc(p.t.slice(0,28))}</span>`).join('')}</div>`:''}
+    </div>
+  </div>`;
+}
+function stat(l,v,s){return `<div class="card"><div class="xs muted" style="text-transform:uppercase;letter-spacing:.07em">${l}</div>
+  <div style="font-size:27px;font-weight:650;letter-spacing:-.03em;margin:2px 0">${v}</div>
+  <div class="xs muted">${s}</div></div>`}
+function qa(t,s,g){return `<button class="item" data-go="${g}" style="cursor:pointer;text-align:left;border-radius:11px">
+  <div class="grow"><div style="font-weight:560;font-size:13px">${t}</div>
+  <div class="xs muted">${s}</div></div></button>`}
+function empty(t,s){return `<div class="empty"><b>${t}</b>${s||''}</div>`}
+function stLabel(s){return {planning:'Planning',progress:'In Progress',review:'Review',completed:'Completed'}[s]||'Planning'}
+function projName(id){const p=DB.projects.find(x=>x.id===id);return p?esc(p.name):'Tanpa project'}
+function progressOf(p){
+  const d=p.deliverables||[]; if(d.length)return Math.round(d.filter(x=>x.done).length/d.length*100);
+  return {planning:10,progress:50,review:80,completed:100}[p.status||'planning'];
+}
+function projOptions(sel){return '<option value="">— tanpa project —</option>'+
+  DB.projects.filter(p=>!p.archived).map(p=>`<option value="${p.id}"${sel===p.id?' selected':''}>${esc(p.name)}</option>`).join('')}
+
+/* ============ PROJECTS ============ */
+let pFilter='all';
+function vProjects(){
+  let list=DB.projects.filter(p=>!p.archived);
+  if(pFilter!=='all'&&pFilter!=='archived')list=list.filter(p=>p.status===pFilter);
+  if(pFilter==='archived')list=DB.projects.filter(p=>p.archived);
+
+  return `<div class="phead spread"><div><h2>Project Hub</h2>
+    <p>Kelola project, deliverables, dan status pembayaran.</p></div>
+    <button class="btn" data-qa="project">+ Project</button></div>
+  <div class="row" style="margin-bottom:14px">
+    ${['all','planning','progress','review','completed','archived']
+      .map(f=>`<span class="chip${pFilter===f?' on':''}" data-pf="${f}">${f==='all'?'Semua':f==='archived'?'Arsip':stLabel(f)}</span>`).join('')}
+  </div>
+  ${list.length?`<div class="grid g2">${list.map(projCard).join('')}</div>`
+    :empty('Belum ada project di filter ini','Tambahkan lewat tombol + Project.')}`;
+}
+function projCard(p){
+  const prog=progressOf(p), d=daysTo(p.deadline);
+  const dl=p.deadline?(d<0?`<span style="color:var(--danger)">lewat ${Math.abs(d)} hari</span>`
+    :d===0?'<span style="color:var(--warn)">hari ini</span>':`${d} hari lagi`):'tanpa deadline';
+  return `<div class="card">
+    <div class="spread"><div class="grow" style="min-width:0">
+      <div class="ttl trunc">${esc(p.name)}</div>
+      <div class="sm muted">${esc(p.client||'Tanpa klien')}</div></div>
+      <span class="st st-${p.status||'planning'}">${stLabel(p.status)}</span></div>
+    <div class="bar mt"><i style="width:${prog}%"></i></div>
+    <div class="row sm muted" style="margin-top:9px;gap:14px">
+      <span>${p.deadline?dateID(p.deadline):'—'} · ${dl}</span>
+      ${p.budget?`<span>${rupiah(p.budget)}</span>`:''}
+      ${p.payment?`<span class="tag">${esc(p.payment)}</span>`:''}
+    </div>
+    ${(p.deliverables||[]).length?`<div class="mt">${p.deliverables.map((x,i)=>`
+      <label class="row sm" style="gap:8px;flex-wrap:nowrap;margin:4px 0;cursor:pointer">
+        <input type="checkbox" data-dl="${p.id}:${i}" ${x.done?'checked':''}>
+        <span class="${x.done?'muted':''}" style="${x.done?'text-decoration:line-through':''}">${esc(x.text)}</span>
+      </label>`).join('')}</div>`:''}
+    ${(p.links||[]).length?`<div class="row mt">${p.links.map(l=>
+      `<a class="tag" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||'Link')} ↗</a>`).join('')}</div>`:''}
+    <div class="row mt" style="justify-content:flex-end">
+      <button class="ico" data-open-proj="${p.id}">Edit</button>
+      <button class="ico" data-arch="${p.id}">${p.archived?'Pulihkan':'Arsip'}</button>
+      <button class="ico red" data-del="projects:${p.id}">Hapus</button>
+    </div></div>`;
 }
 
-function renderProjects(){
-  const active = projects.filter((p) => p.status !== 'selesai');
-  const done   = projects.filter((p) => p.status === 'selesai');
-  $('#projList').innerHTML = active.length ? active.map(projCard).join('')
-    : '<div class="empty">Belum ada project berjalan.</div>';
-  $('#projDone').innerHTML = done.length ? done.map(projCard).join('')
-    : '<div class="empty">Belum ada yang selesai.</div>';
+/* ============ TASKS ============ */
+let tView='kanban', tFilter='all';
+function vTasks(){
+  let list=[...DB.tasks];
+  if(tFilter==='today')list=list.filter(t=>t.due&&t.due<=today()&&t.status!=='done');
+  if(tFilter==='high')list=list.filter(t=>t.priority==='high'&&t.status!=='done');
+  if(tFilter==='open')list=list.filter(t=>t.status!=='done');
 
-  document.querySelectorAll('[data-pstat]').forEach((sel) => {
-    sel.onchange = async () => {
-      await api('/api/projects', { method:'PUT', body: JSON.stringify({ id: sel.dataset.pstat, status: sel.value }) });
-      loadProjects();
-    };
-  });
-  document.querySelectorAll('[data-pdel]').forEach((b) => {
-    b.onclick = async () => {
-      if (!confirm('Hapus project ini?')) return;
-      await api('/api/projects?id=' + b.dataset.pdel, { method:'DELETE' });
-      loadProjects();
-    };
-  });
+  return `<div class="phead spread"><div><h2>Tasks & Calendar</h2>
+    <p>Pecah pekerjaan jadi langkah yang bisa dicentang.</p></div>
+    <button class="btn" data-qa="task">+ Task</button></div>
+  <div class="spread" style="margin-bottom:14px;flex-wrap:wrap">
+    <div class="row">${['all','open','today','high'].map(f=>
+      `<span class="chip${tFilter===f?' on':''}" data-tf="${f}">${
+        {all:'Semua',open:'Belum selesai',today:'Hari ini',high:'Prioritas tinggi'}[f]}</span>`).join('')}</div>
+    <div class="row">${['kanban','list','calendar'].map(v=>
+      `<span class="chip${tView===v?' on':''}" data-tv="${v}">${
+        {kanban:'Kanban',list:'List',calendar:'Kalender'}[v]}</span>`).join('')}</div>
+  </div>
+  ${tView==='kanban'?kanban(list):tView==='list'?taskList(list):calendar()}`;
+}
+function kanban(list){
+  const cols=[['todo','Inbox'],['doing','In Progress'],['review','Review'],['done','Completed']];
+  return `<div class="kan">${cols.map(([k,l])=>{
+    const its=list.filter(t=>(t.status||'todo')===k);
+    return `<div class="kcol"><h4>${l}<span>${its.length}</span></h4>
+      ${its.map(t=>`<div class="kcard" data-open-task="${t.id}">
+        <div style="font-weight:550;font-size:13px">${esc(t.title)}</div>
+        <div class="xs muted" style="margin-top:4px">${projName(t.projectId)}</div>
+        <div class="row xs" style="margin-top:6px;gap:7px">
+          ${t.due?`<span class="tag">${dateID(t.due)}</span>`:''}
+          <span class="tag pr-${t.priority||'low'}">${t.priority||'low'}</span></div>
+      </div>`).join('')||'<div class="xs muted" style="padding:6px 2px">Kosong</div>'}
+    </div>`}).join('')}</div>`;
+}
+function taskList(list){
+  if(!list.length)return empty('Tidak ada task','Tambahkan lewat + Task.');
+  return list.map(t=>`<div class="item">
+    <input type="checkbox" data-done="${t.id}" ${t.status==='done'?'checked':''} style="margin-top:3px">
+    <div class="grow"><div class="ttl ${t.status==='done'?'muted':''}"
+      style="${t.status==='done'?'text-decoration:line-through':''}">${esc(t.title)}</div>
+      <div class="xs muted">${projName(t.projectId)} · ${t.due?dateID(t.due):'tanpa tenggat'}
+        · <span class="pr-${t.priority||'low'}">${t.priority||'low'}</span></div></div>
+    <button class="ico" data-open-task="${t.id}">Edit</button>
+    <button class="ico red" data-del="tasks:${t.id}">Hapus</button></div>`).join('');
+}
+function calendar(){
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+  const first=new Date(y,m,1), start=new Date(first); start.setDate(1-((first.getDay()+6)%7));
+  const dows=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  let cells='';
+  for(let i=0;i<42;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const iso=d.toISOString().slice(0,10);
+    const evs=[...DB.tasks.filter(t=>t.due===iso).map(t=>t.title),
+      ...DB.projects.filter(p=>p.deadline===iso&&!p.archived).map(p=>'◆ '+p.name)];
+    cells+=`<div class="cday${d.getMonth()!==m?' out':''}${iso===today()?' today':''}">
+      <div class="n">${d.getDate()}</div>
+      ${evs.slice(0,3).map(e=>`<div class="cev">${esc(e)}</div>`).join('')}
+      ${evs.length>3?`<div class="xs muted">+${evs.length-3}</div>`:''}</div>`;
+  }
+  return `<div class="card"><div class="spread" style="margin-bottom:11px">
+    <b>${now.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</b>
+    <span class="xs muted">◆ deadline project</span></div>
+    <div class="cal">${dows.map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div></div>`;
 }
 
-$('#pSave').onclick = async () => {
-  const name = $('#pName').value.trim();
-  if (!name) return toast('Nama project wajib diisi');
-  await api('/api/projects', {
-    method:'POST',
-    body: JSON.stringify({
-      name, client: $('#pClient').value.trim(), status: $('#pStatus').value,
-      due: $('#pDue').value, note: $('#pNote').value.trim()
-    })
-  });
-  ['#pName','#pClient','#pDue','#pNote'].forEach((s) => $(s).value = '');
-  toast('Project ditambahkan'); loadProjects();
+/* ============ NOTES ============ */
+let nOpen=null, nQ='';
+function vNotes(){
+  const list=DB.notes.filter(n=>!nQ||(n.title+' '+n.body+' '+(n.tags||[]).join(' ')).toLowerCase().includes(nQ));
+  const cur=DB.notes.find(n=>n.id===nOpen);
+  return `<div class="phead spread"><div><h2>Briefs & Notes</h2>
+    <p>Brief, script, dan catatan produksi dengan auto-save.</p></div>
+    <div class="row"><button class="btn ghost" data-tpl="brief">Template Brief</button>
+    <button class="btn" data-qa="note">+ Note</button></div></div>
+  <div class="grid" style="grid-template-columns:300px 1fr;gap:13px" id="noteSplit">
+    <div class="card" style="padding:12px">
+      <input class="in" id="nSearch" placeholder="Cari catatan…" value="${esc(nQ)}" style="margin-bottom:10px">
+      <div style="max-height:62vh;overflow:auto">
+        ${list.length?list.map(n=>`<div class="item" data-note="${n.id}"
+          style="cursor:pointer;${n.id===nOpen?'border-color:var(--accent)':''}">
+          <div class="grow"><div class="ttl trunc">${esc(n.title||'Tanpa judul')}</div>
+          <div class="xs muted trunc">${esc((n.body||'').slice(0,60))||'kosong'}</div>
+          ${(n.tags||[]).length?`<div class="row" style="margin-top:5px;gap:4px">${
+            n.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:''}</div></div>`).join('')
+          :empty('Belum ada catatan','')}
+      </div>
+    </div>
+    <div class="card">${cur?`
+      <input class="in" id="nTitle" value="${esc(cur.title||'')}" placeholder="Judul"
+        style="font-size:17px;font-weight:600;border:0;background:none;padding:0 0 8px">
+      <div class="row sm muted" style="margin-bottom:10px">
+        <select class="in" id="nProj" style="max-width:190px;padding:5px 10px;font-size:12.5px">${projOptions(cur.projectId)}</select>
+        <input class="in" id="nTags" placeholder="tag, dipisah koma" value="${esc((cur.tags||[]).join(', '))}"
+          style="max-width:210px;padding:5px 10px;font-size:12.5px">
+        <span class="xs" id="nSaved">tersimpan</span></div>
+      <textarea class="in" id="nBody" style="min-height:48vh;line-height:1.7">${esc(cur.body||'')}</textarea>
+      <div class="row mt" style="justify-content:flex-end">
+        <button class="ico" data-copy-note="${cur.id}">Salin isi</button>
+        <button class="ico red" data-del="notes:${cur.id}">Hapus</button></div>`
+      :empty('Pilih catatan','Atau buat baru lewat + Note.')}</div>
+  </div>`;
+}
+
+/* ============ CLIPS ============ */
+let cQ='',cCat='all';
+function vClips(){
+  const cats=['all',...new Set(DB.clips.map(c=>c.category).filter(Boolean))];
+  let list=DB.clips.filter(c=>(cCat==='all'||c.category===cCat)&&
+    (!cQ||(c.label+' '+c.text+' '+(c.tags||[]).join(' ')).toLowerCase().includes(cQ)));
+  list=[...list.filter(c=>c.pinned),...list.filter(c=>!c.pinned)];
+  return `<div class="phead spread"><div><h2>Clipboard Vault</h2>
+    <p>Teks, prompt, URL, dan snippet yang tersinkron antar perangkat.</p></div>
+    <button class="btn" data-qa="clip">+ Simpan Teks</button></div>
+  <div class="card" style="margin-bottom:14px">
+    <textarea class="in" id="cQuick" placeholder="Tempel teks di sini lalu tekan Simpan…"></textarea>
+    <div class="row mt">
+      <input class="in" id="cQLabel" placeholder="Label (opsional)" style="max-width:240px">
+      <input class="in" id="cQCat" placeholder="Kategori" style="max-width:170px">
+      <button class="btn" id="cQSave">Simpan</button></div></div>
+  <div class="spread" style="margin-bottom:12px;flex-wrap:wrap">
+    <div class="row">${cats.map(c=>`<span class="chip${cCat===c?' on':''}" data-cc="${esc(c)}">${c==='all'?'Semua':esc(c)}</span>`).join('')}</div>
+    <input class="in" id="cSearch" placeholder="Cari…" value="${esc(cQ)}" style="max-width:190px;padding:6px 11px;font-size:13px"></div>
+  ${list.length?list.map(c=>`<div class="item" style="display:block">
+    <div class="spread"><div class="grow" style="min-width:0">
+      <div class="ttl trunc">${c.pinned?'📌 ':''}${esc(c.label||'Tanpa label')}
+        ${c.category?`<span class="tag">${esc(c.category)}</span>`:''}</div>
+      <div class="xs muted">${new Date(c.createdAt).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+      <div class="row" style="flex-wrap:nowrap">
+        <button class="ico" data-cpy="${c.id}">Salin</button>
+        <button class="ico" data-pin="${c.id}">${c.pinned?'Lepas':'Pin'}</button>
+        <button class="ico red" data-del="clips:${c.id}">Hapus</button></div></div>
+    <pre style="margin:9px 0 0;white-space:pre-wrap;word-break:break-word;font-size:12.5px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:150px;overflow:auto">${esc(c.text)}</pre>
+    </div>`).join(''):empty('Vault masih kosong','Tempel teks pertama kamu di atas.')}`;
+}
+
+/* ============ PROMPTS ============ */
+let prQ='',prFav=false;
+function vPrompts(){
+  const list=DB.prompts.filter(p=>(!prFav||p.favorite)&&
+    (!prQ||(p.title+' '+p.tool+' '+p.category+' '+p.positive).toLowerCase().includes(prQ)));
+  return `<div class="phead spread"><div><h2>AI Prompt Library</h2>
+    <p>Prompt image dan video beserta negative prompt dan referensinya.</p></div>
+    <button class="btn" data-qa="prompt">+ Prompt</button></div>
+  <div class="spread" style="margin-bottom:13px;flex-wrap:wrap">
+    <div class="row"><span class="chip${!prFav?' on':''}" data-pfav="0">Semua</span>
+      <span class="chip${prFav?' on':''}" data-pfav="1">★ Favorit</span></div>
+    <input class="in" id="prSearch" placeholder="Cari prompt…" value="${esc(prQ)}"
+      style="max-width:210px;padding:6px 11px;font-size:13px"></div>
+  ${list.length?`<div class="grid g2">${list.map(p=>`<div class="card">
+    <div class="spread"><div class="grow" style="min-width:0">
+      <div class="ttl trunc">${p.favorite?'★ ':''}${esc(p.title)}</div>
+      <div class="row xs" style="margin-top:4px;gap:5px">
+        ${p.tool?`<span class="tag">${esc(p.tool)}</span>`:''}
+        ${p.category?`<span class="tag">${esc(p.category)}</span>`:''}
+        ${p.projectId?`<span class="tag">${projName(p.projectId)}</span>`:''}</div></div></div>
+    <pre style="margin:10px 0 0;white-space:pre-wrap;word-break:break-word;font-size:12.5px;
+      max-height:120px;overflow:auto;font-family:ui-monospace,Menlo,monospace">${esc(p.positive)}</pre>
+    ${p.negative?`<div class="xs muted" style="margin-top:7px"><b>Negative:</b> ${esc(p.negative)}</div>`:''}
+    ${p.refs?`<div class="xs" style="margin-top:5px"><a href="${esc(p.refs)}" target="_blank" rel="noopener">Referensi ↗</a></div>`:''}
+    <div class="row mt" style="justify-content:flex-end">
+      <button class="ico" data-prcopy="${p.id}">Salin</button>
+      <button class="ico" data-prfav="${p.id}">${p.favorite?'Unfav':'★'}</button>
+      <button class="ico" data-prdup="${p.id}">Duplikat</button>
+      <button class="ico" data-open-prompt="${p.id}">Edit</button>
+      <button class="ico red" data-del="prompts:${p.id}">Hapus</button></div></div>`).join('')}</div>`
+    :empty('Belum ada prompt','Simpan prompt pertama lewat + Prompt.')}`;
+}
+
+/* ============ ASSETS ============ */
+let aQ='',aCat='all';
+function vAssets(){
+  const cats=['all','SFX','Musik','Transisi','LUT','Font','Overlay','Stock','Template','Lainnya'];
+  const list=DB.assets.filter(a=>(aCat==='all'||a.category===aCat)&&
+    (!aQ||(a.label+' '+(a.tags||[]).join(' ')+' '+(a.note||'')).toLowerCase().includes(aQ)));
+  return `<div class="phead spread"><div><h2>Asset Library</h2>
+    <p>Semua yang kamu butuhkan untuk edit berikutnya.</p></div>
+    <button class="btn" data-qa="asset">+ Aset</button></div>
+  <div class="spread" style="margin-bottom:13px;flex-wrap:wrap">
+    <div class="row">${cats.map(c=>`<span class="chip${aCat===c?' on':''}" data-ac="${c}">${c==='all'?'Semua':c}</span>`).join('')}</div>
+    <input class="in" id="aSearch" placeholder="Cari aset…" value="${esc(aQ)}"
+      style="max-width:200px;padding:6px 11px;font-size:13px"></div>
+  ${list.length?`<div class="grid g3">${list.map(a=>`<div class="card" style="padding:13px">
+    ${a.thumb?`<img src="${esc(a.thumb)}" alt="" style="width:100%;height:106px;object-fit:cover;
+      border-radius:11px;margin-bottom:10px;border:1px solid var(--line)" loading="lazy"
+      onerror="this.style.display='none'">`:''}
+    <div class="ttl trunc">${esc(a.label)}</div>
+    <div class="row xs" style="margin-top:5px;gap:5px">
+      <span class="tag">${esc(a.category||'Lainnya')}</span>
+      ${(a.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+    ${a.note?`<div class="xs muted" style="margin-top:6px">${esc(a.note)}</div>`:''}
+    <div class="row mt" style="justify-content:flex-end">
+      <button class="ico" data-acopy="${a.id}">Salin link</button>
+      <a class="ico" href="${esc(a.url)}" target="_blank" rel="noopener">Buka</a>
+      <button class="ico red" data-del="assets:${a.id}">Hapus</button></div></div>`).join('')}</div>`
+    :empty('Belum ada aset','Tambahkan link SFX, LUT, atau font.')}`;
+}
+
+/* ============ FINANCE ============ */
+function vFinance(){
+  const mon=today().slice(0,7);
+  const month=DB.finance.filter(f=>(f.date||'').startsWith(mon));
+  const inc=month.filter(f=>f.type==='in').reduce((s,f)=>s+Number(f.amount||0),0);
+  const out=month.filter(f=>f.type==='out').reduce((s,f)=>s+Number(f.amount||0),0);
+  const unpaid=DB.projects.filter(p=>!p.archived&&p.budget&&p.payment!=='Lunas')
+    .reduce((s,p)=>s+Number(p.budget||0),0);
+  return `<div class="phead spread"><div><h2>Finance Tracker</h2>
+    <p>Pemasukan, pengeluaran, dan tagihan yang belum terbayar.</p></div>
+    <button class="btn" data-qa="finance">+ Transaksi</button></div>
+  <div class="grid g4">
+    ${stat('Pemasukan Bulan Ini',rupiah(inc),month.filter(f=>f.type==='in').length+' transaksi')}
+    ${stat('Pengeluaran',rupiah(out),month.filter(f=>f.type==='out').length+' transaksi')}
+    ${stat('Profit',rupiah(inc-out),'bulan berjalan')}
+    ${stat('Outstanding',rupiah(unpaid),'project belum lunas')}
+  </div>
+  <div class="card mt">
+    <b style="font-size:14px">Transaksi Terakhir</b>
+    <div class="mt">${DB.finance.length?[...DB.finance].reverse().slice(0,25).map(f=>`
+      <div class="item"><span class="dotbadge" style="margin-top:8px;background:${f.type==='in'?'var(--ok)':'var(--danger)'}"></span>
+        <div class="grow"><div class="ttl trunc">${esc(f.label)}</div>
+          <div class="xs muted">${dateID(f.date)} · ${projName(f.projectId)}${f.category?' · '+esc(f.category):''}</div></div>
+        <div style="font-weight:600;color:${f.type==='in'?'var(--ok)':'var(--danger)'};white-space:nowrap">
+          ${f.type==='in'?'+':'−'} ${rupiah(f.amount)}</div>
+        <button class="ico red" data-del="finance:${f.id}">×</button></div>`).join('')
+      :empty('Belum ada transaksi','Catat pemasukan pertama.')}</div></div>`;
+}
+
+/* ============ TRANSFER ============ */
+function vTransfer(){
+  return `<div class="phead"><h2>File Transfer</h2>
+    <p>Unggah dari iPad, unduh di PC. Maksimal 100 MB per file.</p></div>
+  <div class="card">
+    <div id="drop" style="border:1.5px dashed var(--line2);border-radius:14px;padding:30px 16px;
+      text-align:center;color:var(--muted);cursor:pointer">
+      Ketuk untuk pilih file, atau seret ke sini
+      <div class="xs" style="margin-top:5px">File besar sebaiknya lewat Drive, simpan linknya di Asset Library</div></div>
+    <input type="file" id="picker" multiple hidden>
+    <div class="bar mt" id="barWrap" style="display:none"><i id="bar" style="width:0"></i></div>
+    <div class="xs muted" id="upStatus" style="text-align:center;margin-top:7px"></div></div>
+  <div class="navlbl" style="padding-left:2px">File tersimpan</div>
+  <div id="fileList"></div>`;
+}
+async function loadFiles(){
+  const box=$('#fileList'); if(!box)return;
+  let files=[]; try{files=await api('/api/files')}catch{box.innerHTML=empty('Gagal memuat','');return}
+  box.innerHTML=files.length?files.map(f=>`<div class="item">
+    <div class="grow"><div class="ttl trunc">${esc(f.name)}</div>
+      <div class="xs muted">${fmtSize(f.size)} · ${new Date(f.uploaded).toLocaleString('id-ID',
+        {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+    <button class="ico" data-flink="${esc(f.key)}">Salin link</button>
+    <a class="ico" href="/api/file?key=${encodeURIComponent(f.key)}">Unduh</a>
+    <button class="ico red" data-fdel="${esc(f.key)}">Hapus</button></div>`).join('')
+    :empty('Belum ada file','Unggah file pertama di atas.');
+}
+function fmtSize(b){if(b==null)return '';const u=['B','KB','MB','GB'];let i=0,n=b;
+  while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n<10&&i>0?1:0)+' '+u[i]}
+function uploadOne(file){
+  return new Promise((res,rej)=>{
+    const x=new XMLHttpRequest();
+    x.open('PUT','/api/files?name='+encodeURIComponent(file.name));
+    x.setRequestHeader('Content-Type',file.type||'application/octet-stream');
+    x.upload.onprogress=e=>{if(e.lengthComputable)$('#bar').style.width=(e.loaded/e.total*100)+'%'};
+    x.onload=()=>x.status<300?res():rej(new Error(x.status));
+    x.onerror=()=>rej(new Error('network')); x.send(file)});
+}
+async function handleFiles(fl){
+  const files=[...fl]; if(!files.length)return;
+  $('#barWrap').style.display='block';
+  for(let i=0;i<files.length;i++){
+    $('#upStatus').textContent='Mengunggah '+files[i].name+' ('+(i+1)+'/'+files.length+')';
+    $('#bar').style.width='0';
+    try{await uploadOne(files[i])}catch{$('#upStatus').textContent='Gagal: '+files[i].name;
+      await new Promise(r=>setTimeout(r,1500))}
+  }
+  $('#barWrap').style.display='none'; $('#upStatus').textContent='';
+  toast('Unggahan selesai'); loadFiles();
+}
+
+/* ============ SETTINGS ============ */
+function vSettings(){
+  const counts=COLS.map(c=>`${c}: ${DB[c].length}`).join(' · ');
+  return `<div class="phead"><h2>Settings</h2><p>Preferensi, ekspor data, dan keamanan.</p></div>
+  <div class="grid g2">
+    <div class="card"><b style="font-size:14px">Profil</b>
+      <div class="mt"><label class="f">Nama sapaan</label>
+        <input class="in" id="sName" value="${esc(DB.settings.name||'Annabil')}"></div>
+      <button class="btn mt" id="sSave">Simpan</button></div>
+    <div class="card"><b style="font-size:14px">Data</b>
+      <div class="sm muted mt">${counts}</div>
+      <div class="row mt"><button class="btn ghost" id="sExport">Export JSON</button>
+        <button class="btn ghost" id="sReload">Muat ulang data</button></div>
+      <div class="xs muted mt">Export menyimpan seluruh isi dashboard sebagai satu file cadangan.</div></div>
+    <div class="card"><b style="font-size:14px">Keamanan</b>
+      <div class="sm muted mt">Seluruh halaman di bawah <code>/dash/</code> dikunci satu kata sandi
+        dan cookie sesi berlaku 30 hari per perangkat.</div>
+      <button class="btn danger mt" id="sLogout">Keluar dari perangkat ini</button></div>
+    <div class="card"><b style="font-size:14px">Pintasan Keyboard</b>
+      <div class="sm muted mt">
+        <div><code>/</code> — fokus ke pencarian</div>
+        <div><code>N</code> — Quick Add</div>
+        <div><code>Esc</code> — tutup dialog</div>
+        <div><code>Alt</code> + <code>1…9</code> — pindah bagian</div></div></div>
+  </div>`;
+}
+
+/* ============ GLOBAL SEARCH ============ */
+function vSearch(){
+  const q=searchQ.toLowerCase(); if(!q)return empty('Ketik untuk mencari','');
+  const hit=(arr,f,type,g)=>arr.filter(x=>f(x).toLowerCase().includes(q))
+    .slice(0,8).map(x=>({t:f(x).slice(0,70),type,g}));
+  const res=[
+    ...hit(DB.projects,p=>p.name+' '+(p.client||''),'Project','projects'),
+    ...hit(DB.tasks,t=>t.title,'Task','tasks'),
+    ...hit(DB.notes,n=>(n.title||'')+' '+(n.body||''),'Note','notes'),
+    ...hit(DB.clips,c=>(c.label||'')+' '+c.text,'Clipboard','clips'),
+    ...hit(DB.prompts,p=>p.title+' '+p.positive,'Prompt','prompts'),
+    ...hit(DB.assets,a=>a.label+' '+(a.note||''),'Asset','assets'),
+    ...hit(DB.finance,f=>f.label,'Finance','finance')];
+  return `<div class="phead"><h2>Hasil untuk "${esc(searchQ)}"</h2>
+    <p>${res.length} item ditemukan.</p></div>
+    ${res.length?res.map(r=>`<div class="item" data-go="${r.g}" style="cursor:pointer">
+      <span class="tag" style="margin-top:2px">${r.type}</span>
+      <div class="grow"><div class="trunc">${esc(r.t)}</div></div></div>`).join('')
+    :empty('Tidak ada yang cocok','Coba kata kunci lain.')}`;
+}
+
+/* ============ MODAL / QUICK ADD ============ */
+function openSheet(html){ $('#sheet').innerHTML=html; $('#modal').classList.add('on') }
+function closeSheet(){ $('#modal').classList.remove('on') }
+
+const FORMS={
+  project:(p={})=>({title:p.id?'Edit Project':'Project Baru',sub:'Detail utama, sisanya bisa dilengkapi nanti.',
+    body:`<div class="fgrid">
+      <div class="full"><label class="f">Nama project</label><input class="in" id="f_name" value="${esc(p.name||'')}"></div>
+      <div><label class="f">Klien</label><input class="in" id="f_client" value="${esc(p.client||'')}"></div>
+      <div><label class="f">Status</label><select class="in" id="f_status">
+        ${['planning','progress','review','completed'].map(s=>`<option value="${s}"${p.status===s?' selected':''}>${stLabel(s)}</option>`).join('')}</select></div>
+      <div><label class="f">Deadline</label><input class="in" type="date" id="f_deadline" value="${esc(p.deadline||'')}"></div>
+      <div><label class="f">Budget (Rp)</label><input class="in" type="number" id="f_budget" value="${esc(p.budget||'')}"></div>
+      <div><label class="f">Status bayar</label><select class="in" id="f_payment">
+        ${['Belum','DP','Lunas'].map(s=>`<option${p.payment===s?' selected':''}>${s}</option>`).join('')}</select></div>
+      <div><label class="f">Link utama</label><input class="in" id="f_link" placeholder="https://drive.google.com/…"
+        value="${esc((p.links&&p.links[0]&&p.links[0].url)||'')}"></div>
+      <div class="full"><label class="f">Deliverables (satu per baris)</label>
+        <textarea class="in" id="f_deliv" style="min-height:76px">${esc((p.deliverables||[]).map(d=>d.text).join('\n'))}</textarea></div>
+      <div class="full"><label class="f">Catatan</label><textarea class="in" id="f_notes" style="min-height:62px">${esc(p.notes||'')}</textarea></div>
+    </div>`,
+    read:()=>{
+      const old=p.deliverables||[];
+      return {name:$('#f_name').value.trim(),client:$('#f_client').value.trim(),
+        status:$('#f_status').value,deadline:$('#f_deadline').value,
+        budget:$('#f_budget').value,payment:$('#f_payment').value,
+        links:$('#f_link').value.trim()?[{label:'Drive',url:$('#f_link').value.trim()}]:[],
+        deliverables:$('#f_deliv').value.split('\n').map(s=>s.trim()).filter(Boolean)
+          .map(t=>({text:t,done:(old.find(o=>o.text===t)||{}).done||false})),
+        notes:$('#f_notes').value.trim()}},
+    valid:v=>!!v.name,col:'projects'}),
+
+  task:(t={})=>({title:t.id?'Edit Task':'Task Baru',sub:'Satu langkah konkret yang bisa dicentang.',
+    body:`<div class="fgrid">
+      <div class="full"><label class="f">Judul</label><input class="in" id="f_title" value="${esc(t.title||'')}"></div>
+      <div><label class="f">Project</label><select class="in" id="f_proj">${projOptions(t.projectId)}</select></div>
+      <div><label class="f">Status</label><select class="in" id="f_status">
+        ${[['todo','Inbox'],['doing','In Progress'],['review','Review'],['done','Completed']]
+          .map(([v,l])=>`<option value="${v}"${(t.status||'todo')===v?' selected':''}>${l}</option>`).join('')}</select></div>
+      <div><label class="f">Tenggat</label><input class="in" type="date" id="f_due" value="${esc(t.due||'')}"></div>
+      <div><label class="f">Prioritas</label><select class="in" id="f_pr">
+        ${['low','med','high'].map(s=>`<option${(t.priority||'low')===s?' selected':''}>${s}</option>`).join('')}</select></div>
+    </div>`,
+    read:()=>({title:$('#f_title').value.trim(),projectId:$('#f_proj').value,
+      status:$('#f_status').value,due:$('#f_due').value,priority:$('#f_pr').value}),
+    valid:v=>!!v.title,col:'tasks'}),
+
+  note:(n={})=>({title:'Catatan Baru',sub:'Judul dulu, isinya bisa ditulis di editor.',
+    body:`<div class="fgrid"><div class="full"><label class="f">Judul</label>
+      <input class="in" id="f_title" value="${esc(n.title||'')}"></div>
+      <div class="full"><label class="f">Project</label><select class="in" id="f_proj">${projOptions(n.projectId)}</select></div></div>`,
+    read:()=>({title:$('#f_title').value.trim()||'Tanpa judul',projectId:$('#f_proj').value,
+      body:n.body||'',tags:[],updatedAt:new Date().toISOString()}),
+    valid:()=>true,col:'notes',after:id=>{nOpen=id;go('notes')}}),
+
+  clip:(c={})=>({title:'Simpan Teks',sub:'Bisa dibuka dari perangkat mana pun.',
+    body:`<div class="fgrid">
+      <div class="full"><label class="f">Isi</label><textarea class="in" id="f_text">${esc(c.text||'')}</textarea></div>
+      <div><label class="f">Label</label><input class="in" id="f_label" value="${esc(c.label||'')}"></div>
+      <div><label class="f">Kategori</label><input class="in" id="f_cat" value="${esc(c.category||'')}"></div></div>`,
+    read:()=>({text:$('#f_text').value,label:$('#f_label').value.trim(),
+      category:$('#f_cat').value.trim(),pinned:false,createdAt:new Date().toISOString()}),
+    valid:v=>!!v.text.trim(),col:'clips'}),
+
+  prompt:(p={})=>({title:p.id?'Edit Prompt':'Prompt Baru',sub:'Simpan versi yang sudah terbukti bagus.',
+    body:`<div class="fgrid">
+      <div class="full"><label class="f">Judul</label><input class="in" id="f_title" value="${esc(p.title||'')}"></div>
+      <div><label class="f">Tool</label><input class="in" id="f_tool" placeholder="Seedance, Omni, Nano Banana" value="${esc(p.tool||'')}"></div>
+      <div><label class="f">Kategori</label><input class="in" id="f_cat" placeholder="image / video / style" value="${esc(p.category||'')}"></div>
+      <div class="full"><label class="f">Positive prompt</label><textarea class="in" id="f_pos">${esc(p.positive||'')}</textarea></div>
+      <div class="full"><label class="f">Negative prompt</label><textarea class="in" id="f_neg" style="min-height:62px">${esc(p.negative||'')}</textarea></div>
+      <div><label class="f">Referensi (URL)</label><input class="in" id="f_refs" value="${esc(p.refs||'')}"></div>
+      <div><label class="f">Project</label><select class="in" id="f_proj">${projOptions(p.projectId)}</select></div></div>`,
+    read:()=>({title:$('#f_title').value.trim(),tool:$('#f_tool').value.trim(),
+      category:$('#f_cat').value.trim(),positive:$('#f_pos').value,negative:$('#f_neg').value,
+      refs:$('#f_refs').value.trim(),projectId:$('#f_proj').value,favorite:p.favorite||false}),
+    valid:v=>!!v.title&&!!v.positive.trim(),col:'prompts'}),
+
+  asset:(a={})=>({title:'Aset Baru',sub:'Link menuju file asli, bukan unggahan.',
+    body:`<div class="fgrid">
+      <div class="full"><label class="f">Nama aset</label><input class="in" id="f_label" value="${esc(a.label||'')}"></div>
+      <div class="full"><label class="f">URL</label><input class="in" id="f_url" placeholder="https://" value="${esc(a.url||'')}"></div>
+      <div><label class="f">Kategori</label><select class="in" id="f_cat">
+        ${['SFX','Musik','Transisi','LUT','Font','Overlay','Stock','Template','Lainnya']
+          .map(c=>`<option${a.category===c?' selected':''}>${c}</option>`).join('')}</select></div>
+      <div><label class="f">Thumbnail (URL)</label><input class="in" id="f_thumb" value="${esc(a.thumb||'')}"></div>
+      <div><label class="f">Tags</label><input class="in" id="f_tags" placeholder="pisah dengan koma" value="${esc((a.tags||[]).join(', '))}"></div>
+      <div><label class="f">Project</label><select class="in" id="f_proj">${projOptions(a.projectId)}</select></div>
+      <div class="full"><label class="f">Catatan</label><input class="in" id="f_note" value="${esc(a.note||'')}"></div></div>`,
+    read:()=>({label:$('#f_label').value.trim(),url:$('#f_url').value.trim(),
+      category:$('#f_cat').value,thumb:$('#f_thumb').value.trim(),
+      tags:$('#f_tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+      projectId:$('#f_proj').value,note:$('#f_note').value.trim()}),
+    valid:v=>!!v.label&&!!v.url,col:'assets'}),
+
+  finance:(f={})=>({title:'Transaksi Baru',sub:'Catat pemasukan atau pengeluaran.',
+    body:`<div class="fgrid">
+      <div><label class="f">Jenis</label><select class="in" id="f_type">
+        <option value="in">Pemasukan</option><option value="out">Pengeluaran</option></select></div>
+      <div><label class="f">Jumlah (Rp)</label><input class="in" type="number" id="f_amt"></div>
+      <div class="full"><label class="f">Keterangan</label><input class="in" id="f_label"></div>
+      <div><label class="f">Tanggal</label><input class="in" type="date" id="f_date" value="${today()}"></div>
+      <div><label class="f">Project</label><select class="in" id="f_proj">${projOptions()}</select></div>
+      <div class="full"><label class="f">Kategori</label><input class="in" id="f_cat" placeholder="software, transport, fee editor"></div></div>`,
+    read:()=>({type:$('#f_type').value,amount:Number($('#f_amt').value||0),
+      label:$('#f_label').value.trim(),date:$('#f_date').value,
+      projectId:$('#f_proj').value,category:$('#f_cat').value.trim()}),
+    valid:v=>!!v.label&&v.amount>0,col:'finance'})
 };
 
-/* ---------- init ---------- */
-loadClips(); loadFiles(); loadAssets(); loadProjects();
+function form(kind,existing){
+  const f=FORMS[kind](existing||{});
+  openSheet(`<h3>${f.title}</h3><div class="sub">${f.sub}</div>${f.body}
+    <div class="row" style="justify-content:flex-end;margin-top:18px">
+      <button class="btn ghost" id="mCancel">Batal</button>
+      <button class="btn" id="mSave">Simpan</button></div>`);
+  $('#mCancel').onclick=closeSheet;
+  $('#mSave').onclick=()=>{
+    const v=f.read();
+    if(!f.valid(v))return toast('Lengkapi dulu field wajibnya');
+    if(existing&&existing.id){
+      Object.assign(DB[f.col].find(x=>x.id===existing.id),v,{updatedAt:new Date().toISOString()});
+    }else{
+      const id=uid();
+      DB[f.col].unshift({id,...v,createdAt:v.createdAt||new Date().toISOString(),
+        updatedAt:new Date().toISOString()});
+      if(f.after){closeSheet();save(f.col);return f.after(id)}
+    }
+    closeSheet(); commit(f.col,'Tersimpan');
+  };
+  setTimeout(()=>{const a=$('#sheet .in');a&&a.focus()},60);
+}
+
+function quickAdd(){
+  const opts=[['project','Project'],['task','Task'],['note','Catatan'],['clip','Teks / Prompt'],
+    ['prompt','AI Prompt'],['asset','Aset'],['finance','Transaksi']];
+  openSheet(`<h3>Quick Add</h3><div class="sub">Apa yang mau kamu simpan?</div>
+    <div class="grid g2" style="gap:9px">${opts.map(([k,l])=>
+      `<button class="item" data-qa="${k}" style="cursor:pointer;text-align:left">
+        <div class="grow"><b style="font-size:13.5px">${l}</b></div></button>`).join('')}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:16px">
+      <button class="btn ghost" id="mCancel">Tutup</button></div>`);
+  $('#mCancel').onclick=closeSheet;
+}
+
+const BRIEF_TPL=`CLIENT:
+PROJECT:
+DEADLINE:
+
+TUJUAN
+-
+
+TARGET AUDIENS
+-
+
+KEY MESSAGE
+-
+
+DELIVERABLES
+-
+
+REFERENSI
+-
+
+CATATAN PRODUKSI
+-`;
+
+/* ============ events ============ */
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-go],[data-qa],[data-del],[data-pf],[data-tf],[data-tv],[data-cc],[data-ac],[data-pfav],[data-cpy],[data-pin],[data-note],[data-open-proj],[data-open-task],[data-open-prompt],[data-prcopy],[data-prfav],[data-prdup],[data-acopy],[data-arch],[data-copy-note],[data-flink],[data-fdel],[data-tpl]');
+  if(!t)return;
+  const d=t.dataset;
+
+  if(d.go){ if($('#modal').classList.contains('on'))closeSheet(); return go(d.go) }
+  if(d.qa){ closeSheet(); return form(d.qa) }
+  if(d.tpl==='brief'){
+    const id=uid();
+    DB.notes.unshift({id,title:'Creative Brief',body:BRIEF_TPL,tags:['brief'],
+      projectId:'',updatedAt:new Date().toISOString()});
+    save('notes'); nOpen=id; return go('notes');
+  }
+  if(d.del){
+    const [col,id]=d.del.split(':');
+    if(!confirm('Hapus item ini secara permanen?'))return;
+    DB[col]=DB[col].filter(x=>x.id!==id);
+    if(col==='notes'&&nOpen===id)nOpen=null;
+    return commit(col,'Dihapus');
+  }
+  if(d.pf){pFilter=d.pf;return render()}
+  if(d.tf){tFilter=d.tf;return render()}
+  if(d.tv){tView=d.tv;return render()}
+  if(d.cc){cCat=d.cc;return render()}
+  if(d.ac){aCat=d.ac;return render()}
+  if(d.pfav!==undefined&&t.hasAttribute('data-pfav')){prFav=d.pfav==='1';return render()}
+  if(d.note){nOpen=d.note;return render()}
+  if(d.cpy)return copyText(DB.clips.find(c=>c.id===d.cpy).text);
+  if(d.pin){const c=DB.clips.find(x=>x.id===d.pin);c.pinned=!c.pinned;return commit('clips')}
+  if(d.openProj)return form('project',DB.projects.find(p=>p.id===d.openProj));
+  if(d.openTask)return form('task',DB.tasks.find(x=>x.id===d.openTask));
+  if(d.openPrompt)return form('prompt',DB.prompts.find(x=>x.id===d.openPrompt));
+  if(d.prcopy)return copyText(DB.prompts.find(p=>p.id===d.prcopy).positive);
+  if(d.prfav){const p=DB.prompts.find(x=>x.id===d.prfav);p.favorite=!p.favorite;return commit('prompts')}
+  if(d.prdup){const p=DB.prompts.find(x=>x.id===d.prdup);
+    DB.prompts.unshift({...p,id:uid(),title:p.title+' (copy)',createdAt:new Date().toISOString()});
+    return commit('prompts','Diduplikat')}
+  if(d.acopy)return copyText(DB.assets.find(a=>a.id===d.acopy).url);
+  if(d.copyNote)return copyText(DB.notes.find(n=>n.id===d.copyNote).body||'');
+  if(d.arch){const p=DB.projects.find(x=>x.id===d.arch);p.archived=!p.archived;
+    return commit('projects',p.archived?'Diarsipkan':'Dipulihkan')}
+  if(d.flink)return copyText(location.origin+'/api/file?key='+encodeURIComponent(d.flink));
+  if(d.fdel){ if(!confirm('Hapus file ini?'))return;
+    await api('/api/files?key='+encodeURIComponent(d.fdel),{method:'DELETE'});
+    toast('File dihapus'); return loadFiles() }
+});
+
+document.addEventListener('change',e=>{
+  const d=e.target.dataset;
+  if(d.done){const t=DB.tasks.find(x=>x.id===d.done);
+    t.status=e.target.checked?'done':'todo';return commit('tasks')}
+  if(d.dl){const [pid,i]=d.dl.split(':');
+    const p=DB.projects.find(x=>x.id===pid);
+    p.deliverables[+i].done=e.target.checked;return commit('projects')}
+});
+
+document.addEventListener('input',e=>{
+  const id=e.target.id;
+  if(id==='nSearch'){nQ=e.target.value.toLowerCase();const v=e.target.value;render();
+    const el=$('#nSearch');if(el){el.value=v;el.focus()}return}
+  if(id==='cSearch'){cQ=e.target.value.toLowerCase();const v=e.target.value;render();
+    const el=$('#cSearch');if(el){el.value=v;el.focus()}return}
+  if(id==='prSearch'){prQ=e.target.value.toLowerCase();const v=e.target.value;render();
+    const el=$('#prSearch');if(el){el.value=v;el.focus()}return}
+  if(id==='aSearch'){aQ=e.target.value.toLowerCase();const v=e.target.value;render();
+    const el=$('#aSearch');if(el){el.value=v;el.focus()}return}
+  if(['nTitle','nBody','nTags','nProj'].includes(id)){
+    const n=DB.notes.find(x=>x.id===nOpen); if(!n)return;
+    if(id==='nTitle')n.title=e.target.value;
+    if(id==='nBody')n.body=e.target.value;
+    if(id==='nTags')n.tags=e.target.value.split(',').map(s=>s.trim()).filter(Boolean);
+    if(id==='nProj')n.projectId=e.target.value;
+    n.updatedAt=new Date().toISOString();
+    const s=$('#nSaved'); if(s){s.textContent='menyimpan…';
+      setTimeout(()=>{const x=$('#nSaved');if(x)x.textContent='tersimpan'},700)}
+    save('notes');
+  }
+});
+
+$('#gsearch').addEventListener('input',e=>{
+  searchQ=e.target.value.trim();
+  if(searchQ.length>=2){route='search';render();$('#gsearch').focus()}
+  else if(route==='search'){route='overview';render();$('#gsearch').focus()}
+});
+
+$('#quickAdd').onclick=quickAdd;
+$('#qaFab').onclick=quickAdd;
+$('#burger').onclick=()=>{$('#side').classList.toggle('open');$('#scrim').classList.toggle('on')};
+$('#scrim').onclick=closeSide;
+$('#modal').onclick=e=>{if(e.target.id==='modal')closeSheet()};
+$('#logout').onclick=async()=>{await fetch('/api/session',{method:'DELETE'});location.href='/login'};
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeSheet();
+  const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if(typing)return;
+  if(e.key==='/'){e.preventDefault();$('#gsearch').focus()}
+  if(e.key.toLowerCase()==='n'){e.preventDefault();quickAdd()}
+  if(e.altKey&&/^[1-9]$/.test(e.key)){const n=NAV[+e.key-1];if(n)go(n.id)}
+});
+
+document.addEventListener('click',e=>{
+  if(e.target.id==='cQSave'){
+    const text=$('#cQuick').value.trim(); if(!text)return toast('Isi teksnya dulu');
+    DB.clips.unshift({id:uid(),text,label:$('#cQLabel').value.trim(),
+      category:$('#cQCat').value.trim(),pinned:false,createdAt:new Date().toISOString()});
+    commit('clips','Tersimpan');
+  }
+  if(e.target.id==='sSave'){DB.settings.name=$('#sName').value.trim()||'Annabil';
+    save('settings');toast('Tersimpan');render()}
+  if(e.target.id==='sReload'){loadAll().then(()=>{render();toast('Data dimuat ulang')})}
+  if(e.target.id==='sLogout'){fetch('/api/session',{method:'DELETE'}).then(()=>location.href='/login')}
+  if(e.target.id==='sExport'){
+    const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='growframe-backup-'+today()+'.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  }
+  if(e.target.id==='drop')$('#picker').click();
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='picker'){handleFiles(e.target.files);e.target.value=''}
+});
+['dragenter','dragover','dragleave','drop'].forEach(ev=>
+  document.addEventListener(ev,e=>{
+    const d=$('#drop'); if(!d)return;
+    if(ev==='dragover'||ev==='dragenter'){e.preventDefault();d.style.borderColor='var(--accent)'}
+    else d.style.borderColor='var(--line2)';
+    if(ev==='drop'){e.preventDefault();handleFiles(e.dataTransfer.files)}
+  }));
+
+function tick(){const n=new Date();
+  $('#clock').textContent=n.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})
+    +' · '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}
+tick(); setInterval(tick,30000);
+
+/* ============ boot ============ */
+(async()=>{
+  const h=(location.hash||'').replace('#/','');
+  if(h&&TITLES[h])route=h;
+  render();
+  await loadAll();
+  render();
+})();
+window.addEventListener('hashchange',()=>{
+  const h=(location.hash||'').replace('#/','');
+  if(h&&TITLES[h]&&h!==route){route=h;render()}
+});
 </script>
 </body>
 </html>
