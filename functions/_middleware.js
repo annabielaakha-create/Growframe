@@ -1,6 +1,6 @@
 // functions/_middleware.js
 // Gerbang halaman privat. Semua URL di bawah /dash/ hanya bisa dibuka
-// kalau cookie sesi valid. Tambah file HTML baru ke folder dash/ —
+// kalau cookie sesi valid. Tambah file HTML baru ke folder public/dash/ —
 // otomatis ikut terlindungi, tanpa perlu mengubah file ini.
 
 const PROTECTED_PREFIX = "/dash";
@@ -26,6 +26,13 @@ export async function onRequest(context) {
     url.pathname.startsWith(PROTECTED_PREFIX + "/");
 
   if (!isProtected) return next();
+
+  if (!env.DASH_KV) {
+    return new Response(
+      "Binding DASH_KV belum dipasang di Cloudflare Pages. Lihat SETUP.md.",
+      { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+    );
+  }
 
   const token = readCookie(request, "gf_session");
   const valid = token ? await env.DASH_KV.get("session:" + token) : null;
