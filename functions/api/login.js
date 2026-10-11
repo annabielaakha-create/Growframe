@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
   }
 
   const expected = env.DASH_PASSWORD;
-  if (!expected) return json({ error: "server_not_configured" }, 500);
+  if (!expected || !env.DASH_KV) return json({ error: "server_not_configured" }, 500);
 
   const given = typeof body.password === "string" ? body.password : "";
   if (given.length !== expected.length) {
