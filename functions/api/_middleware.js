@@ -1,7 +1,14 @@
 // functions/api/_middleware.js
-// Menyediakan helper bersama + gerbang autentikasi untuk seluruh /api/*
-
-const PUBLIC_PATHS = new Set(["/api/login"]);
+// Hanya endpoint dashboard yang dikunci. Endpoint situs publik lain
+// (mis. /api/brief untuk form kontak) sengaja dibiarkan lewat.
+const PROTECTED_PATHS = new Set([
+  "/api/session",
+  "/api/clips",
+  "/api/assets",
+  "/api/projects",
+  "/api/files",
+  "/api/file",
+]);
 const SESSION_TTL = 60 * 60 * 24 * 30; // 30 hari
 
 function readCookie(request, name) {
@@ -51,10 +58,11 @@ export async function onRequest(context) {
   const url = new URL(request.url);
 
   context.data.json = json;
-  context.data.store = makeStore(env);
   context.data.SESSION_TTL = SESSION_TTL;
+  if (env.DASH_KV) context.data.store = makeStore(env);
 
-  if (PUBLIC_PATHS.has(url.pathname)) return next();
+  if (!PROTECTED_PATHS.has(url.pathname)) return next();
+  if (!env.DASH_KV) return json({ error: "kv_not_bound" }, 500);
 
   const token = readCookie(request, "gf_session");
   if (!token) return json({ error: "unauthorized" }, 401);
