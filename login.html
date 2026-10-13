@@ -68,8 +68,14 @@
         body: JSON.stringify({ password: document.getElementById('pw').value })
       });
       if (res.ok) {
-        const next = new URLSearchParams(location.search).get('next') || '/dash/';
-        location.href = next.startsWith('/') ? next : '/dash/';
+        const info = await res.json().catch(() => ({}));
+        const home = info.home || '/dash/';
+        const next = new URLSearchParams(location.search).get('next');
+        // Klien hanya boleh mendarat di areanya sendiri.
+        const allowed = info.role === 'cece'
+          ? (next && next.startsWith('/dash/cece') ? next : home)
+          : (next && next.startsWith('/') ? next : home);
+        location.href = allowed;
         return;
       }
       err.textContent = res.status === 401

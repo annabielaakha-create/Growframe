@@ -1,14 +1,16 @@
 // functions/api/_middleware.js
-// Menyediakan helper bersama + gerbang autentikasi untuk seluruh /api/*
+// Helper bersama + gerbang autentikasi untuk endpoint dashboard.
+// Endpoint situs publik lain (mis. /api/brief) sengaja dibiarkan lewat.
 
-// Hanya endpoint dashboard yang dikunci. Endpoint situs publik lain
-// (mis. /api/brief untuk form kontak) sengaja dibiarkan lewat.
-const PROTECTED_PATHS = new Set([
-  "/api/session",
+const OWNER_PATHS = new Set([
   "/api/files",
   "/api/file",
 ]);
-const PROTECTED_PREFIXES = ["/api/data/"];
+const OWNER_PREFIXES = ["/api/data/"];
+
+const SHARED_PATHS = new Set(["/api/session"]);
+const CECE_PREFIXES = ["/api/cece/"];
+
 const SESSION_TTL = 60 * 60 * 24 * 30; // 30 hari
 
 function readCookie(request, name) {
@@ -53,6 +55,14 @@ function makeStore(env) {
   };
 }
 
+function classify(pathname) {
+  if (OWNER_PATHS.has(pathname)) return "owner";
+  if (OWNER_PREFIXES.some((p) => pathname.startsWith(p))) return "owner";
+  if (CECE_PREFIXES.some((p) => pathname.startsWith(p))) return "shared";
+  if (SHARED_PATHS.has(pathname)) return "shared";
+  return "public";
+}
+
 export async function onRequest(context) {
   const { request, env, next } = context;
   const url = new URL(request.url);
@@ -61,18 +71,30 @@ export async function onRequest(context) {
   context.data.SESSION_TTL = SESSION_TTL;
   if (env.DASH_KV) context.data.store = makeStore(env);
 
-  const guarded =
-    PROTECTED_PATHS.has(url.pathname) ||
-    PROTECTED_PREFIXES.some((p) => url.pathname.startsWith(p));
-  if (!guarded) return next();
+  const need = classify(url.pathname);
+  if (need === "public") return next();
+
   if (!env.DASH_KV) return json({ error: "kv_not_bound" }, 500);
 
   const token = readCookie(request, "gf_session");
   if (!token) return json({ error: "unauthorized" }, 401);
 
-  const valid = await env.DASH_KV.get("session:" + token);
-  if (!valid) return json({ error: "unauthorized" }, 401);
+  const raw = await env.DASH_KV.get("session:" + token);
+  if (!raw) return json({ error: "unauthorized" }, 401);
+
+  let role = "owner";
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.role) role = parsed.role;
+  } catch {
+    // Sesi lama tersimpan sebagai angka biasa — perlakukan sebagai pemilik.
+  }
+
+  if (need === "owner" && role !== "owner") {
+    return json({ error: "forbidden" }, 403);
+  }
 
   context.data.token = token;
+  context.data.role = role;
   return next();
 }

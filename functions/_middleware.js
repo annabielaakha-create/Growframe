@@ -1,9 +1,11 @@
 // functions/_middleware.js
-// Gerbang halaman privat. Semua URL di bawah /dash/ hanya bisa dibuka
-// kalau cookie sesi valid. Tambah file HTML baru ke folder public/dash/ —
-// otomatis ikut terlindungi, tanpa perlu mengubah file ini.
+// Gerbang halaman privat.
+//   /dash/cece/*  → pemilik dan Cece
+//   /dash/*       → pemilik saja
+// File HTML baru di bawah folder itu otomatis ikut terlindungi.
 
 const PROTECTED_PREFIX = "/dash";
+const CECE_PREFIX = "/dash/cece";
 
 function readCookie(request, name) {
   const raw = request.headers.get("Cookie") || "";
@@ -17,14 +19,19 @@ function readCookie(request, name) {
   return null;
 }
 
+function redirectToLogin(url) {
+  const to = new URL("/login", url.origin);
+  to.searchParams.set("next", url.pathname);
+  return Response.redirect(to.toString(), 302);
+}
+
 export async function onRequest(context) {
   const { request, env, next } = context;
   const url = new URL(request.url);
+  const path = url.pathname;
 
   const isProtected =
-    url.pathname === PROTECTED_PREFIX ||
-    url.pathname.startsWith(PROTECTED_PREFIX + "/");
-
+    path === PROTECTED_PREFIX || path.startsWith(PROTECTED_PREFIX + "/");
   if (!isProtected) return next();
 
   if (!env.DASH_KV) {
@@ -35,12 +42,21 @@ export async function onRequest(context) {
   }
 
   const token = readCookie(request, "gf_session");
-  const valid = token ? await env.DASH_KV.get("session:" + token) : null;
+  const raw = token ? await env.DASH_KV.get("session:" + token) : null;
+  if (!raw) return redirectToLogin(url);
 
-  if (!valid) {
-    const to = new URL("/login", url.origin);
-    to.searchParams.set("next", url.pathname);
-    return Response.redirect(to.toString(), 302);
+  let role = "owner";
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.role) role = parsed.role;
+  } catch {
+    // Sesi lama berformat angka — perlakukan sebagai pemilik.
+  }
+
+  const isCeceArea = path === CECE_PREFIX || path.startsWith(CECE_PREFIX + "/");
+
+  if (role === "cece" && !isCeceArea) {
+    return Response.redirect(new URL("/dash/cece/", url.origin).toString(), 302);
   }
 
   const response = await next();
