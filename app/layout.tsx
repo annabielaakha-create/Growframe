@@ -3,16 +3,14 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { site } from '@/lib/site'
 import SmoothScroll from '@/components/SmoothScroll'
-import Nav from '@/components/Nav'
-import Footer from '@/components/Footer'
-import Grain from '@/components/ui/Grain'
-import GlassAlphaFilter from '@/components/ui/GlassAlphaFilter'
+import { Nav } from '@/components/Nav'
+import { Footer } from '@/components/Footer'
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
-  weight: ['200', '300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -60,8 +58,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#06040C',
-  colorScheme: 'dark',
+  themeColor: '#FFFFFF',
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
 }
@@ -85,23 +83,43 @@ const jsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased bg-white">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <SmoothScroll />
-        <GlassAlphaFilter />
-        <Grain />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-6 focus:top-6 focus:z-[200] focus:rounded-pill focus:bg-white focus:px-5 focus:py-3 focus:text-sm focus:text-ink"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-6 focus:top-6 focus:z-[200] focus:rounded-full focus:bg-violet focus:px-5 focus:py-3 focus:text-sm focus:text-white"
         >
           Skip to content
         </a>
-        <Nav />
+        <Nav
+          links={[
+            { label: 'Portfolio', href: '/work' },
+            { label: 'Services', href: '/#services' },
+            { label: 'About', href: '/about' },
+            { label: 'Pricing', href: '/#pricing' },
+          ]}
+          ctaHref="/contact"
+          ctaText="Start Your Project"
+        />
         <main id="main">{children}</main>
-        <Footer />
+        <Footer
+          links={[
+            { label: 'Portfolio', href: '/work' },
+            { label: 'Services', href: '/#services' },
+            { label: 'About', href: '/about' },
+            { label: 'Pricing', href: '/#pricing' },
+          ]}
+          email={site.email}
+          socials={{
+            instagram: site.instagram,
+            whatsapp: site.whatsapp,
+            linkedin: site.linkedin,
+          }}
+        />
       </body>
     </html>
   )
