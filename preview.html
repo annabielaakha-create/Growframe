@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrowFrame — Light Editorial Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================================ */
+    /* Reset & Base                                                      */
+    /* ================================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background-color: #ffffff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ================================================================ */
+    /* Typography                                                        */
+    /* ================================================================ */
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1.2;
+    }
+
+    h1 { font-size: 3.5rem; }
+    h2 { font-size: 2.5rem; }
+    h3 { font-size: 1.75rem; }
+    h4 { font-size: 1.25rem; font-weight: 600; }
+
+    p {
+      line-height: 1.6;
+      color: #666666;
+    }
+
+    /* ================================================================ */
+    /* Layout                                                            */
+    /* ================================================================ */
+    .section {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-gray {
+      background-color: #f8f8f8;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ================================================================ */
+    /* Navigation                                                        */
+    /* ================================================================ */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+
+    nav .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-decoration: none;
+    }
+
+    nav .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    nav .nav-links a {
+      color: #666666;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav .nav-links a:hover {
+      color: #1a1a1a;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #7c3aed;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #6d28d9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    /* ================================================================ */
+    /* Hero Section                                                      */
+    /* ================================================================ */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+      overflow: hidden;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 900px;
+      padding: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      color: #000000;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      color: #666666;
+    }
+
+    /* ================================================================ */
+    /* Cards                                                             */
+    /* ================================================================ */
+    .card {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      border-color: #808080;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-4px);
+    }
+
+    /* ================================================================ */
+    /* Section Header                                                    */
+    /* ================================================================ */
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #7c3aed;
+      margin-bottom: 1rem;
+    }
+
+    .section-header h2 {
+      margin-bottom: 1.5rem;
+      color: #1a1a1a;
+    }
+
+    .section-header p {
+      font-size: 1.125rem;
+      color: #666666;
+    }
+
+    /* ================================================================ */
+    /* Grid Layouts                                                      */
+    /* ================================================================ */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    /* ================================================================ */
+    /* Service Cards                                                     */
+    /* ================================================================ */
+    .service-number {
+      color: #7c3aed;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .service-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #1a1a1a;
+    }
+
+    .service-card p {
+      margin-bottom: 1.5rem;
+    }
+
+    .service-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .service-card li {
+      padding: 0.5rem 0;
+      color: #666666;
+      font-size: 0.95rem;
+    }
+
+    .service-card li::before {
+      content: "✓";
+      color: #7c3aed;
+      font-weight: bold;
+      margin-right: 0.75rem;
+    }
+
+    /* ================================================================ */
+    /* Stats                                                             */
+    /* ================================================================ */
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666666;
+    }
+
+    /* ================================================================ */
+    /* Pricing                                                           */
+    /* ================================================================ */
+    .pricing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 56px;
+      height: 28px;
+      background: #e8e8e8;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      background: #7c3aed;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #7c3aed;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pricing-card {
+      position: relative;
+      height: 100%;
+    }
+
+    .pricing-card .price {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-card .price-cadence {
+      color: #666666;
+      font-size: 1rem;
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    /* ================================================================ */
+    /* Testimonials                                                      */
+    /* ================================================================ */
+    .testimonial-card blockquote {
+      font-size: 1.125rem;
+      line-height: 1.7;
+      color: #1a1a1a;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #f0f0f0;
+    }
+
+    .testimonial-author-name {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .testimonial-author-role {
+      font-size: 0.875rem;
+      color: #666666;
+    }
+
+    /* ================================================================ */
+    /* FAQ                                                               */
+    /* ================================================================ */
+    .faq-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .faq-item:hover {
+      border-color: #808080;
+    }
+
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .faq-question h4 {
+      color: #1a1a1a;
+    }
+
+    .faq-answer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e8e8e8;
+      color: #666666;
+      line-height: 1.7;
+    }
+
+    /* ================================================================ */
+    /* CTA Section                                                       */
+    /* ================================================================ */
+    .cta-section {
+      background: #000000;
+      color: white;
+      text-align: center;
+      padding: 8rem 2rem;
+    }
+
+    .cta-section h2 {
+      color: white;
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+      color: #cccccc;
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ================================================================ */
+    /* Footer                                                            */
+    /* ================================================================ */
+    footer {
+      background: #f8f8f8;
+      border-top: 1px solid #e8e8e8;
+      padding: 4rem 2rem 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-brand h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      color: #1a1a1a;
+    }
+
+    .footer-links h4 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #1a1a1a;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #666666;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .footer-links a:hover {
+      color: #7c3aed;
+    }
+
+    .footer-bottom {
+      padding-top: 2rem;
+      border-top: 1px solid #e8e8e8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-bottom p {
+      font-size: 0.875rem;
+      color: #666666;
+    }
+
+    /* ================================================================ */
+    /* Responsive                                                        */
+    /* ================================================================ */
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.75rem; }
+      h3 { font-size: 1.25rem; }
+
+      .section {
+        padding: 3rem 1.5rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .stat-value {
+        font-size: 3rem;
+      }
+
+      .pricing-card .price {
+        font-size: 2.5rem;
+      }
+
+      .cta-section h2 {
+        font-size: 2rem;
+      }
+
+      nav .nav-links {
+        display: none;
+      }
+
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="#" class="logo">GrowFrame</a>
+      <ul class="nav-links">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#work">Portfolio</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+      <a href="#contact" class="btn btn-primary">Start Your Project</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>We grow brands one frame at a time.</h1>
+      <p>Cinematic craft, AI-accelerated. Unlimited requests, 48-hour turnaround, one flat monthly rate.</p>
+      <a href="#contact" class="btn btn-primary">Start Your Project</a>
+    </div>
+  </section>
+
+  <!-- Problems Section (The Hidden Cost) -->
+  <section class="section section-gray">
+    <div class="section-header">
+      <h2>The Hidden Cost of Manual Work</h2>
+      <p>Most teams are losing hours every day to repetitive, manual processes.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: #000;">Lack of Visibility</h3>
+        <p>No clear pipeline or status tracking. Bottlenecks hide until they explode.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: #000;">Tedious Onboarding</h3>
+        <p>New team members take weeks to become productive. Knowledge silos everywhere.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: #000;">Fragmented Workflows</h3>
+        <p>Tools don't talk to each other. Data lives in ten different places.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: #000;">Siloed Communication</h3>
+        <p>Teams working in isolation. No visibility into what others are doing.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: #000;">Wasted Resources</h3>
+        <p>Manual work eating up 40-60% of team bandwidth. Zero ROI tasks.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: #000;">Scaling Friction</h3>
+        <p>Each new hire adds complexity. Manual processes don't scale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="section" id="services">
+    <div class="section-header">
+      <div class="eyebrow">What We Offer</div>
+      <h2>Six Disciplines. One Monthly Rate.</h2>
+      <p>Mix and match however your month demands — no scope negotiations, no change orders, no per-asset pricing.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card service-card">
+        <div class="service-number">/ 01</div>
+        <h3>AI Influencer Creation</h3>
+        <p>We build photoreal brand ambassadors with locked identity across every frame.</p>
+        <ul>
+          <li>Character identity lock</li>
+          <li>Wardrobe & scene systems</li>
+          <li>Always-on content</li>
+        </ul>
+      </div>
+      <div class="card service-card">
+        <div class="service-number">/ 02</div>
+        <h3>AI Talking Head Videos</h3>
+        <p>Founder updates and course modules delivered as polished talking-head video.</p>
+        <ul>
+          <li>Script to screen</li>
+          <li>Multi-language versions</li>
+          <li>Kinetic captions</li>
+        </ul>
+      </div>
+      <div class="card service-card">
+        <div class="service-number">/ 03</div>
+        <h3>AI Product Photography</h3>
+        <p>Hero shots and campaign key art at commercial resolution.</p>
+        <ul>
+          <li>Hero & campaign stills</li>
+          <li>Infinite backdrops</li>
+          <li>Retail-ready output</li>
+        </ul>
+      </div>
+      <div class="card service-card">
+        <div class="service-number">/ 04</div>
+        <h3>AI Product Videography</h3>
+        <p>Macro pours, liquid ribbons, and light-streak reveals.</p>
+        <ul>
+          <li>Macro & high-speed looks</li>
+          <li>Orbit & reveal moves</li>
+          <li>Loop-ready cuts</li>
+        </ul>
+      </div>
+      <div class="card service-card">
+        <div class="service-number">/ 05</div>
+        <h3>Video Editing</h3>
+        <p>Story-first cuts, colour grading, and sound design.</p>
+        <ul>
+          <li>Grade & finish</li>
+          <li>Sound design</li>
+          <li>Native versioning</li>
+        </ul>
+      </div>
+      <div class="card service-card">
+        <div class="service-number">/ 06</div>
+        <h3>AI Visual Art</h3>
+        <p>Original art for campaign key visuals, album covers, and brand worlds.</p>
+        <ul>
+          <li>Key visuals</li>
+          <li>Brand worlds</li>
+          <li>Editorial art direction</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="section section-gray">
+    <div class="section-header">
+      <h2>By The Numbers</h2>
+    </div>
+    <div class="grid-4">
+      <div class="stat">
+        <div class="stat-value">7+</div>
+        <div class="stat-label">Years of Expertise</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">150+</div>
+        <div class="stat-label">Projects Shipped</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">48hrs</div>
+        <div class="stat-label">Avg. Turnaround</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">100%</div>
+        <div class="stat-label">Client Retention</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="section">
+    <div class="section-header">
+      <div class="eyebrow">Testimonials</div>
+      <h2>Their Words, Not Ours</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card testimonial-card">
+        <blockquote>"They turn a plain white wall into a cinematic scene. Every edit comes back better than the brief."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar"></div>
+          <div>
+            <div class="testimonial-author-name">Rafi Kurniawan</div>
+            <div class="testimonial-author-role">CEO, Atelier Nova</div>
+          </div>
+        </div>
+      </div>
+      <div class="card testimonial-card">
+        <blockquote>"The speed is unreal. We went from one hero shot to a whole campaign in a week."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar"></div>
+          <div>
+            <div class="testimonial-author-name">Maya Chen</div>
+            <div class="testimonial-author-role">CMO, Lumina Beauty</div>
+          </div>
+        </div>
+      </div>
+      <div class="card testimonial-card">
+        <blockquote>"AI-generated but human-curated. The results feel authentic, on-brand, and actually convert."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar"></div>
+          <div>
+            <div class="testimonial-author-name">David Kim</div>
+            <div class="testimonial-author-role">Founder, Veda</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="section section-gray" id="pricing">
+    <div class="section-header">
+      <div class="eyebrow">Pricing</div>
+      <h2>Flexible Plans For Your Needs</h2>
+      <p>No hourly billing, no change orders, no surprise invoices. Pause or cancel anytime.</p>
+    </div>
+    <div class="pricing-toggle">
+      <span style="font-weight: 600; color: #1a1a1a;">Monthly</span>
+      <div class="toggle-switch"></div>
+      <span style="font-weight: 600; color: #666;">Yearly <span style="color: #7c3aed;">-20%</span></span>
+    </div>
+    <div class="grid-3">
+      <div class="card pricing-card">
+        <h3>Starter</h3>
+        <p style="font-size: 0.875rem; margin-bottom: 1.5rem;">Two brand-critical assets per month.</p>
+        <div class="price">$2,900<span class="price-cadence">/mo</span></div>
+        <a href="#contact" class="btn btn-primary">Start Your Project</a>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ 2 deliverables / month</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ 48-hour turnaround</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Unlimited revisions</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Source files included</li>
+        </ul>
+      </div>
+      <div class="card pricing-card" style="border-color: #7c3aed; box-shadow: 0 8px 24px rgba(124, 58, 237, 0.15);">
+        <div class="badge">Most Popular</div>
+        <h3>Growth</h3>
+        <p style="font-size: 0.875rem; margin-bottom: 1.5rem;">Six assets with cross-platform versioning.</p>
+        <div class="price">$7,400<span class="price-cadence">/mo</span></div>
+        <a href="#contact" class="btn btn-primary">Start Your Project</a>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ 6 deliverables / month</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ 48-hour turnaround</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Unlimited revisions</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Native social cuts</li>
+        </ul>
+      </div>
+      <div class="card pricing-card">
+        <h3>Scale</h3>
+        <p style="font-size: 0.875rem; margin-bottom: 1.5rem;">An always-on studio. Twelve assets monthly.</p>
+        <div class="price">$14,900<span class="price-cadence">/mo</span></div>
+        <a href="#contact" class="btn btn-primary">Contact Us</a>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ 12 deliverables / month</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Priority production</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Unlimited revisions</li>
+          <li style="padding: 0.5rem 0; font-size: 0.95rem;">✓ Dedicated Slack channel</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section">
+    <div class="section-header">
+      <div class="eyebrow">FAQs</div>
+      <h2>Good Questions</h2>
+      <p>Can't find what you're looking for? Email us — a human replies within the hour.</p>
+    </div>
+    <div class="faq-container">
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Can I cancel or pause my subscription anytime?</h4>
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          Absolutely. Pause from your dashboard when you need to, and resume when your next campaign kicks off. No fees, no hassle.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>How does the 48-hour turnaround work?</h4>
+          <span>▼</span>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Who owns the final assets?</h4>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <h2>Ready when your brief is.</h2>
+    <p>Book a 20-minute intro call. We'll scope your first month of content before you spend a dollar.</p>
+    <div class="cta-buttons">
+      <a href="#contact" class="btn btn-primary">Get Started</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>GrowFrame</h3>
+          <p>Subscription creative studio. Cinematic craft, AI-accelerated.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#work">Portfolio</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="mailto:hello@growframestudio.bond">hello@growframestudio.bond</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Follow Us</h4>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">LinkedIn</a></li>
+            <li><a href="#">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 GrowFrame Studio. All rights reserved.</p>
+        <div>
+          <a href="#" style="color: #666; text-decoration: none; margin-right: 1.5rem;">Privacy</a>
+          <a href="#" style="color: #666; text-decoration: none;">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

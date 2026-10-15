@@ -1,106 +1,173 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import Aurora from '@/components/ui/Aurora'
-import Reveal, { RevealWords } from '@/components/ui/Reveal'
-import GlassIcon from '@/components/ui/GlassIcon'
-import { plans } from '@/lib/data'
+import { useState, useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { Card } from './Card'
+import { Button } from './Button'
+import { Badge } from './Badge'
+import { SectionHeader } from './SectionHeader'
 
-export default function Pricing() {
+gsap.registerPlugin(ScrollTrigger)
+
+export interface Plan {
+  name: string
+  blurb: string
+  price: string
+  cadence: string
+  features: string[]
+  cta: string
+  featured?: boolean
+}
+
+interface PricingProps {
+  plans: Plan[]
+  className?: string
+}
+
+/**
+ * Pricing — Pricing cards with monthly/yearly toggle (Sanjaya style)
+ */
+export function Pricing({ plans, className = '' }: PricingProps) {
+  const [isYearly, setIsYearly] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLDivElement[]>([])
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    // Stagger animation for pricing cards
+    cardsRef.current.forEach((card, i) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 80%',
+            end: 'top 60%',
+            scrub: false,
+          },
+          delay: i * 0.15,
+        }
+      )
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
+
   return (
-    <section id="pricing" className="section overflow-hidden">
-      <Aurora intensity={0.45} />
-      <div className="shell relative">
-        <div className="mx-auto max-w-[680px] text-center">
-          <GlassIcon name="gem" size={104} className="mx-auto mb-6" tilt={-6} />
-          <p className="text-[11px] uppercase tracking-[0.24em] text-violet-300/70">Membership</p>
-          <h2 className="mt-6 text-headline font-semibold">
-            <RevealWords text="One rate." />{' '}
-            <span className="text-gradient">
-              <RevealWords text="Endless frames." delay={0.15} />
-            </span>
-          </h2>
-          <Reveal delay={2}>
-            <p className="mx-auto mt-6 max-w-[500px] text-[15.5px] leading-relaxed text-white/50">
-              No hourly billing, no change orders, no surprise invoices. Pause or cancel from your
-              dashboard whenever you like.
-            </p>
-          </Reveal>
-        </div>
+    <section ref={containerRef} className={`section bg-off-white ${className}`} id="pricing">
+      <SectionHeader
+        eyebrow="Pricing"
+        title="Flexible Plans For Your Needs"
+        description="No hourly billing, no change orders, no surprise invoices. Pause or cancel anytime."
+      />
 
-        <div className="mx-auto mt-16 grid max-w-[560px] items-stretch gap-5 lg:max-w-none lg:grid-cols-3">
-          {plans.map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 44 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 1, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className={`glass glass-specular glass-hairline relative flex flex-col rounded-glass p-8 md:p-10 ${
-                p.featured ? 'lg:-my-4 lg:shadow-glass-hover' : ''
-              }`}
+      {/* Toggle Switch */}
+      <div className="flex items-center justify-center gap-4 mb-12">
+        <span className={`text-sm font-semibold ${!isYearly ? 'text-text-primary' : 'text-text-secondary'}`}>
+          Monthly
+        </span>
+        <button
+          onClick={() => setIsYearly(!isYearly)}
+          className="relative w-14 h-7 bg-border rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet focus:ring-offset-2"
+          aria-label="Toggle yearly pricing"
+        >
+          <div
+            className={`absolute top-1 left-1 w-5 h-5 bg-violet rounded-full transition-transform duration-300 ${
+              isYearly ? 'translate-x-7' : 'translate-x-0'
+            }`}
+          />
+        </button>
+        <span className={`text-sm font-semibold ${isYearly ? 'text-text-primary' : 'text-text-secondary'}`}>
+          Yearly
+          <span className="ml-1 text-violet">-20%</span>
+        </span>
+      </div>
+
+      {/* Pricing Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {plans.map((plan, i) => (
+          <div
+            key={plan.name}
+            ref={(el) => {
+              if (el) cardsRef.current[i] = el
+            }}
+            className="relative"
+          >
+            <Card
+              variant={plan.featured ? 'elevated' : 'default'}
+              hover
+              className="h-full flex flex-col p-8"
             >
-              {p.featured && (
-                <>
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-glass bg-gradient-to-b from-violet-600/20 to-transparent"
-                  />
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-pill bg-gradient-to-r from-violet-500 to-violet-700 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-white shadow-glow">
-                    Most chosen
-                  </span>
-                </>
+              {/* Featured Badge */}
+              {plan.featured && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <Badge variant="solid" color="violet">Most Popular</Badge>
+                </div>
               )}
 
-              <div className="relative">
-                <h3 className="text-[17px] font-semibold tracking-tight">{p.name}</h3>
-                <p className="mt-2 min-h-[42px] text-[13.5px] leading-relaxed text-white/45">
-                  {p.blurb}
-                </p>
-                <p className="mt-7 flex items-baseline gap-1.5">
-                  <span className="text-[clamp(2.2rem,4vw,3rem)] font-semibold tracking-[-0.04em] text-gradient-soft">
-                    {p.price}
-                  </span>
-                  <span className="text-[13.5px] text-white/35">{p.cadence}</span>
-                </p>
+              {/* Plan Name */}
+              <h3 className="text-2xl font-bold text-text-primary mb-3">
+                {plan.name}
+              </h3>
 
-                <ul className="mt-8 space-y-3.5 border-t border-white/[0.08] pt-8">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-[14px] text-white/60">
-                      <span className="mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-200">
-                        <svg width="9" height="9" viewBox="0 0 12 12" fill="none" aria-hidden>
-                          <path
-                            d="M2 6.2 4.6 8.8 10 3.4"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
+              {/* Blurb */}
+              <p className="text-sm text-text-secondary mb-6">
+                {plan.blurb}
+              </p>
+
+              {/* Price */}
+              <div className="mb-6">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-black">
+                    {plan.price}
+                  </span>
+                  <span className="text-text-secondary">
+                    {plan.cadence}
+                  </span>
+                </div>
+                {isYearly && (
+                  <p className="text-sm text-violet mt-1">
+                    Save 20% with yearly billing
+                  </p>
+                )}
               </div>
 
-              <Link
+              {/* CTA Button */}
+              <Button
+                variant={plan.featured ? 'primary' : 'secondary'}
+                className="w-full mb-6"
                 href="/contact"
-                className={`relative mt-10 flex items-center justify-center rounded-pill px-6 py-3.5 text-[14.5px] font-medium transition-all duration-500 ease-apple ${
-                  p.featured
-                    ? 'bg-white text-ink hover:-translate-y-0.5 hover:shadow-glow'
-                    : 'border border-white/12 bg-white/[0.05] text-white hover:bg-white/[0.12]'
-                }`}
               >
-                {p.cta}
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+                {plan.cta}
+              </Button>
 
-        <p className="mt-10 text-center text-[13px] text-white/35">
-          All plans include unlimited revisions, full commercial rights and source files on request.
+              {/* Features List */}
+              <ul className="space-y-3 flex-grow">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <span className="text-violet font-semibold mt-0.5">✓</span>
+                    <span className="text-sm text-text-secondary">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Note */}
+      <div className="text-center mt-8">
+        <p className="text-sm text-text-secondary">
+          All plans include unlimited revisions, full commercial rights, and source files on request.
         </p>
       </div>
     </section>
