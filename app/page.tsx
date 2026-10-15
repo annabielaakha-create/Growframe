@@ -4,7 +4,7 @@ import { Stats } from '@/components/sections/Stats'
 import { Process } from '@/components/sections/Process'
 import { Testimonials } from '@/components/sections/Testimonials'
 import { Pricing } from '@/components/sections/Pricing'
-import { FAQ } from "@/components/sections/Faq"'
+import { FAQ } from '@/components/sections/Faq'
 import { CTA } from '@/components/sections/CTA'
 
 import { services, process, stats, testimonials, plans, faqs } from '@/lib/data'
