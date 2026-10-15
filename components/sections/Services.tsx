@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ServiceCard } from './ServiceCard'
-import { SectionHeader } from './SectionHeader'
+import { ServiceCard } from '../ui/ServiceCard'
+import { SectionHeader } from '../ui/SectionHeader'
 
 gsap.registerPlugin(ScrollTrigger)
 

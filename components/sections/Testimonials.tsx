@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Card } from './Card'
-import { SectionHeader } from './SectionHeader'
+import { Card } from '../ui/Card'
+import { SectionHeader } from '../ui/SectionHeader'
 
 gsap.registerPlugin(ScrollTrigger)
 

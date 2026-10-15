@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Card } from './Card'
-import { Button } from './Button'
-import { Badge } from './Badge'
-import { SectionHeader } from './SectionHeader'
+import { Card } from '../ui/Card'
+import { Button } from '../ui/Button'
+import { Badge } from '../ui/Badge'
+import { SectionHeader } from '../ui/SectionHeader'
 
 gsap.registerPlugin(ScrollTrigger)
 

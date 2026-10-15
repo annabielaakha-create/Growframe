@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
-import { Button } from './Button'
+import { Button } from '../ui/Button'
 
 interface HeroProps {
   title: string
