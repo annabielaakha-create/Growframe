@@ -20,7 +20,7 @@ export interface Service {
 }
 
 interface ServicesProps {
-  services: Service[]
+  services: readonly Service[]
   className?: string
 }
 

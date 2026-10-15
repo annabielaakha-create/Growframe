@@ -21,7 +21,7 @@ export interface Plan {
 }
 
 interface PricingProps {
-  plans: Plan[]
+  plans: readonly Plan[]
   className?: string
 }
 

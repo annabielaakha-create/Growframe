@@ -13,7 +13,7 @@ export interface FAQ {
 }
 
 interface FAQProps {
-  faqs: FAQ[]
+  faqs: readonly FAQ[]
   className?: string
 }
 

@@ -14,7 +14,7 @@ export interface Stat {
 }
 
 interface StatsProps {
-  stats: Stat[]
+  stats: readonly Stat[]
   title?: string
   description?: string
   className?: string

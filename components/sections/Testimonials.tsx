@@ -17,7 +17,7 @@ export interface Testimonial {
 }
 
 interface TestimonialsProps {
-  testimonials: Testimonial[]
+  testimonials: readonly Testimonial[]
   className?: string
 }
 

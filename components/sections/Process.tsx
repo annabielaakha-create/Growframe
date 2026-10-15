@@ -16,7 +16,7 @@ export interface ProcessStep {
 }
 
 interface ProcessProps {
-  steps: ProcessStep[]
+  steps: readonly ProcessStep[]
   className?: string
 }
 
