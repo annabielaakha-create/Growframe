@@ -9,14 +9,14 @@ import { SectionHeader } from '../ui/SectionHeader'
 gsap.registerPlugin(ScrollTrigger)
 
 export interface Service {
-  n: string
-  slug: string
-  title: string
-  tagline: string
-  body: string
-  points: string[]
-  icon?: React.ReactNode
-  industries: string
+  readonly n: string
+  readonly slug: string
+  readonly title: string
+  readonly tagline: string
+  readonly body: string
+  readonly points: readonly string[]
+  readonly icon?: React.ReactNode
+  readonly industries: string
 }
 
 interface ServicesProps {

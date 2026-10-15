@@ -4,7 +4,7 @@ interface ServiceCardProps {
   number: string
   title: string
   description: string
-  points: string[]
+  points: readonly string[]
   icon?: React.ReactNode
   className?: string
 }
